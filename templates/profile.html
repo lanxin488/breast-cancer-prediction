@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}个人中心 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>👤 个人中心</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h3>基本信息</h3>
+                <div class="info-row">
+                    <span class="label">用户名</span>
+                    <span class="value">{{ user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">邮箱</span>
+                    <span class="value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">角色</span>
+                    <span class="value">{{ '管理员' if user.role == 'admin' else '医生' if user.role == 'doctor' else '普通用户' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">注册时间</span>
+                    <span class="value">{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+            </div>
+
+            <div>
+                <h3>修改密码</h3>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label>当前密码</label>
+                        <input type="password" id="current-password" placeholder="请输入当前密码">
+                    </div>
+                    <div class="form-group">
+                        <label>新密码</label>
+                        <input type="password" id="new-password" placeholder="请输入新密码">
+                    </div>
+                    <div class="form-group">
+                        <label>确认新密码</label>
+                        <input type="password" id="confirm-password" placeholder="请再次输入新密码">
+                    </div>
+                    <button type="button" onclick="changePassword()" class="btn btn-primary">修改密码</button>
+                </form>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h3>账号安全</h3>
+            <button onclick="deleteAccount()" class="btn btn-danger" style="background: #fff0f0; color: #F44336;">🗑️ 删除账号</button>
+            <p style="color: #999; font-size: 12px; margin-top: 10px;">删除账号将永久删除所有数据，此操作不可撤销</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>📊 我的预测统计</h3>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="number">{{ prediction_count }}</div><div class="label">预测次数</div></div>
+            <div class="stat-card"><div class="number">{{ benign_count }}</div><div class="label">良性结果</div></div>
+            <div class="stat-card"><div class="number">{{ malignant_count }}</div><div class="label">恶性结果</div></div>
+        </div>
+        <button onclick="window.location.href='/prediction-report'" class="btn btn-secondary" style="margin-top: 20px;">📋 查看详细报告</button>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function changePassword() {
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('请填写所有字段');
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert('两次输入的新密码不一致');
+        return;
+    }
+
+    const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+        alert('密码修改成功');
+        document.getElementById('change-password-form').reset();
+    } else {
+        alert('修改失败：' + data.message);
+    }
+}
+
+function deleteAccount() {
+    if (!confirm('确定要删除账号吗？此操作将永久删除所有数据，无法撤销！')) {
+        return;
+    }
+
+    if (!confirm('再次确认：确定要删除账号吗？')) {
+        return;
+    }
+
+    fetch('/api/delete-account', {
+        method: 'DELETE'
+    }).then(res => res.json()).then(data => {
+        if (data.success) {
+            alert('账号已删除');
+            window.location.href = '/';
+        } else {
+            alert('删除失败：' + data.message);
+        }
+    });
+}
+</script>
+<style>
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .info-row .label {
+        color: #666;
+    }
+    .info-row .value {
+        font-weight: 500;
+        color: #333;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}预测报告 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📋 我的预测报告</h2>
+        
+        <div class="stats-grid" style="margin-bottom: 30px;">
+            <div class="stat-card"><div class="number">{{ total }}</div><div class="label">总预测次数</div></div>
+            <div class="stat-card"><div class="number">{{ benign_count }}</div><div class="label">良性结果</div></div>
+            <div class="stat-card"><div class="number">{{ malignant_count }}</div><div class="label">恶性结果</div></div>
+            <div class="stat-card"><div class="number">{{ avg_confidence }}%</div><div class="label">平均置信度</div></div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3>概率分布</h3>
+            <div class="prob-bar-container">
+                <div class="prob-bar">
+                    <div class="prob-fill prob-benign" style="width: {{ (benign_count / total * 100) if total > 0 else 0 }}%"></div>
+                    <div class="prob-fill prob-malignant" style="width: {{ (malignant_count / total * 100) if total > 0 else 0 }}%; left: {{ (benign_count / total * 100) if total > 0 else 0 }}%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 10px;">
+                    <span>良性 {{ benign_count }}</span>
+                    <span>恶性 {{ malignant_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        {% if predictions %}
+            <h3>预测记录</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>结果</th>
+                        <th>置信度</th>
+                        <th>恶性概率</th>
+                        <th>良性概率</th>
+                        <th>使用模型</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr>
+                        <td>{{ pred.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><span class="status-badge {% if pred.result == '良性' %}status-benign{% else %}status-malignant{% endif %}">{{ pred.result }}</span></td>
+                        <td>{{ (pred.confidence * 100)|round(2) }}%</td>
+                        <td>{{ (pred.malignant_prob * 100)|round(2) }}%</td>
+                        <td>{{ (pred.benign_prob * 100)|round(2) }}%</td>
+                        <td>{{ pred.model_used }}</td>
+                        <td>
+                            <button onclick="window.location.href='/api/export-report/{{ pred.id }}'" class="btn btn-info">📥 导出报告</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <button onclick="window.location.href='/api/export-all-reports'" class="btn btn-success" style="margin-top: 20px;">📥 导出全部报告</button>
+        {% else %}
+            <div class="empty-state">
+                <p>暂无预测记录</p>
+                <button onclick="window.location.href='/predict'" class="btn btn-primary" style="margin-top: 20px;">🚀 开始预测</button>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prob-bar-container {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .prob-bar {
+        height: 30px;
+        background: #eee;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+    .prob-fill {
+        height: 100%;
+        border-radius: 15px;
+        position: absolute;
+        transition: width 0.5s;
+    }
+    .prob-benign {
+        background: linear-gradient(90deg, #4CAF50, #81c784);
+        left: 0;
+    }
+    .prob-malignant {
+        background: linear-gradient(90deg, #F44336, #ff6b6b);
+    }
+</style>
+{% endblock %}

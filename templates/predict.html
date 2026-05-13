@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+
+{% block title %}预测 - 乳腺癌预测系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        display: none;
+    }
+    .result-positive {
+        border-left: 5px solid #dc3545;
+    }
+    .result-negative {
+        border-left: 5px solid #28a745;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin: 25px 0;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #f5f7fa, #e9ecef);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+    .stat-card .number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+    }
+    .stat-card .label {
+        color: #666;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .prob-bar {
+        display: flex;
+        height: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        background: #e9ecef;
+        margin: 10px 0;
+    }
+    .prob-fill {
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .prob-malignant {
+        background: linear-gradient(90deg, #dc3545, #ff6b6b);
+    }
+    .prob-benign {
+        background: linear-gradient(90deg, #28a745, #51cf66);
+    }
+    .feature-importance {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+    .feature-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .feature-row:last-child {
+        border-bottom: none;
+    }
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #51cf66);
+        color: white;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .input-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .input-group label {
+        font-size: 13px;
+        color: #495057;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    .input-group input {
+        padding: 10px 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .spinner {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .form-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    .form-section h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 16px;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .image-upload {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        margin-top: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .image-upload:hover {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+    .image-preview {
+        max-width: 100%;
+        max-height: 300px;
+        margin-top: 15px;
+        border-radius: 8px;
+        display: none;
+    }
+    /* 环形进度条 */
+    .gauge-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 30px 0;
+    }
+    .gauge {
+        width: 200px;
+        height: 200px;
+        position: relative;
+    }
+    .gauge-bg {
+        fill: none;
+        stroke: #e9ecef;
+        stroke-width: 15;
+    }
+    .gauge-fill {
+        fill: none;
+        stroke-width: 15;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        transition: stroke-dashoffset 1s ease;
+    }
+    .gauge-fill.malignant {
+        stroke: url(#gradient-red);
+    }
+    .gauge-fill.benign {
+        stroke: url(#gradient-green);
+    }
+    .gauge-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .gauge-value {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333;
+    }
+    .gauge-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    /* 风险解释卡片 */
+    .risk-explanation {
+        background: linear-gradient(135deg, #667eea15, #764ba215);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 25px 0;
+        border: 1px solid #667eea30;
+    }
+    /* 影响因素 */
+    .factors-section {
+        margin: 25px 0;
+    }
+    .factor-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .factor-high {
+        border-color: #dc3545;
+        background: #fff5f5;
+    }
+    .factor-low {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+    /* 应对方案 */
+    .action-plan {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .action-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .action-item h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .action-item ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #666;
+    }
+    .action-item li {
+        margin: 5px 0;
+    }
+    /* 免责声明 */
+    .disclaimer {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+    .disclaimer h3 {
+        color: #856404;
+        margin: 0 0 10px 0;
+    }
+    .disclaimer p {
+        color: #856404;
+        margin: 0;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>🔮 乳腺癌风险预测</h2>
+        
+        <form id="prediction-form">
+            <div class="form-section">
+                <h3>📏 肿瘤特征（平均）</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="radius_mean">半径均值</label>
+                        <input type="number" step="any" id="radius_mean" placeholder="17.99">
+                    </div>
+                    <div class="input-group">
+                        <label for="texture_mean">纹理均值</label>
+                        <input type="number" step="any" id="texture_mean" placeholder="10.38">
+                    </div>
+                    <div class="input-group">
+                        <label for="perimeter_mean">周长均值</label>
+                        <input type="number" step="any" id="perimeter_mean" placeholder="122.8">
+                    </div>
+                    <div class="input-group">
+                        <label for="area_mean">面积均值</label>
+                        <input type="number" step="any" id="area_mean" placeholder="1001">
+                    </div>
+                    <div class="input-group">
+                        <label for="smoothness_mean">平滑度均值</label>
+                        <input type="number" step="any" id="smoothness_mean" placeholder="0.1184">
+                    </div>
+                    <div class="input-group">
+                        <label for="compactness_mean">紧凑度均值</label>
+                        <input type="number" step="any" id="compactness_mean" placeholder="0.2776">
+                    </div>
+                    <div class="input-group">
+                        <label for="concavity_mean">凹度均值</label>
+                        <input type="number" step="any" id="concavity_mean" placeholder="0.3001">
+                    </div>
+                    <div class="input-group">
+                        <label for="concave_points_mean">凹点均值</label>
+                        <input type="number" step="any" id="concave_points_mean" placeholder="0.1471">
+                    </div>
+                    <div class="input-group">
+                        <label for="symmetry_mean">对称性均值</label>
+                        <input type="number" step="any" id="symmetry_mean" placeholder="0.2419">
+                    </div>
+                    <div class="input-group">
+                        <label for="fractal_dimension_mean">分形维数均值</label>
+                        <input type="number" step="any" id="fractal_dimension_mean" placeholder="0.07871">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>📊 肿瘤特征（标准误差）</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="radius_se">半径 SE</label>
+                        <input type="number" step="any" id="radius_se" placeholder="1.095">
+                    </div>
+                    <div class="input-group">
+                        <label for="texture_se">纹理 SE</label>
+                        <input type="number" step="any" id="texture_se" placeholder="0.9053">
+                    </div>
+                    <div class="input-group">
+                        <label for="perimeter_se">周长 SE</label>
+                        <input type="number" step="any" id="perimeter_se" placeholder="8.589">
+                    </div>
+                    <div class="input-group">
+                        <label for="area_se">面积 SE</label>
+                        <input type="number" step="any" id="area_se" placeholder="153.4">
+                    </div>
+                    <div class="input-group">
+                        <label for="smoothness_se">平滑度 SE</label>
+                        <input type="number" step="any" id="smoothness_se" placeholder="0.006399">
+                    </div>
+                    <div class="input-group">
+                        <label for="compactness_se">紧凑度 SE</label>
+                        <input type="number" step="any" id="compactness_se" placeholder="0.04904">
+                    </div>
+                    <div class="input-group">
+                        <label for="concavity_se">凹度 SE</label>
+                        <input type="number" step="any" id="concavity_se" placeholder="0.05373">
+                    </div>
+                    <div class="input-group">
+                        <label for="concave_points_se">凹点 SE</label>
+                        <input type="number" step="any" id="concave_points_se" placeholder="0.01587">
+                    </div>
+                    <div class="input-group">
+                        <label for="symmetry_se">对称性 SE</label>
+                        <input type="number" step="any" id="symmetry_se" placeholder="0.03003">
+                    </div>
+                    <div class="input-group">
+                        <label for="fractal_dimension_se">分形维数 SE</label>
+                        <input type="number" step="any" id="fractal_dimension_se" placeholder="0.006193">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>💥 肿瘤特征（最差值）</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="radius_worst">半径最差值</label>
+                        <input type="number" step="any" id="radius_worst" placeholder="25.38">
+                    </div>
+                    <div class="input-group">
+                        <label for="texture_worst">纹理最差值</label>
+                        <input type="number" step="any" id="texture_worst" placeholder="17.33">
+                    </div>
+                    <div class="input-group">
+                        <label for="perimeter_worst">周长最差值</label>
+                        <input type="number" step="any" id="perimeter_worst" placeholder="184.6">
+                    </div>
+                    <div class="input-group">
+                        <label for="area_worst">面积最差值</label>
+                        <input type="number" step="any" id="area_worst" placeholder="2019">
+                    </div>
+                    <div class="input-group">
+                        <label for="smoothness_worst">平滑度最差值</label>
+                        <input type="number" step="any" id="smoothness_worst" placeholder="0.1622">
+                    </div>
+                    <div class="input-group">
+                        <label for="compactness_worst">紧凑度最差值</label>
+                        <input type="number" step="any" id="compactness_worst" placeholder="0.6656">
+                    </div>
+                    <div class="input-group">
+                        <label for="concavity_worst">凹度最差值</label>
+                        <input type="number" step="any" id="concavity_worst" placeholder="0.7119">
+                    </div>
+                    <div class="input-group">
+                        <label for="concave_points_worst">凹点最差值</label>
+                        <input type="number" step="any" id="concave_points_worst" placeholder="0.2654">
+                    </div>
+                    <div class="input-group">
+                        <label for="symmetry_worst">对称性最差值</label>
+                        <input type="number" step="any" id="symmetry_worst" placeholder="0.4601">
+                    </div>
+                    <div class="input-group">
+                        <label for="fractal_dimension_worst">分形维数最差值</label>
+                        <input type="number" step="any" id="fractal_dimension_worst" placeholder="0.1189">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>🧠 模型选择</h3>
+                <div class="input-group">
+                    <label for="model_type">预测模型</label>
+                    <select id="model_type" style="padding: 10px; border: 2px solid #e9ecef; border-radius: 8px;">
+                        <option value="breast_cancer">默认模型 (Breast Cancer)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" onclick="fillRandomData()" class="btn btn-secondary">🎲 随机填入</button>
+                <button type="button" onclick="clearForm()" class="btn btn-secondary">🗑️ 清空</button>
+                <button type="button" id="predict-btn" onclick="submitPrediction()" class="btn btn-primary">🔍 开始预测</button>
+                <div id="loading-spinner" class="spinner"></div>
+            </div>
+        </form>
+        
+        <!-- 预测结果 -->
+        <div id="result-container" class="result-card">
+            <h2 id="result-title"></h2>
+            
+            <!-- 环形进度条 -->
+            <div class="gauge-container">
+                <svg class="gauge" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="gradient-red" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#dc3545"/>
+                            <stop offset="100%" style="stop-color:#ff6b6b"/>
+                        </linearGradient>
+                        <linearGradient id="gradient-green" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#28a745"/>
+                            <stop offset="100%" style="stop-color:#51cf66"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
+                    <circle id="gauge-fill" class="gauge-fill malignant" cx="50" cy="50" r="40" 
+                            stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                </svg>
+                <div class="gauge-text">
+                    <div id="gauge-value" class="gauge-value">0%</div>
+                    <div id="gauge-label" class="gauge-label">风险概率</div>
+                </div>
+            </div>
+            
+            <!-- 风险解释 -->
+            <div class="risk-explanation">
+                <div id="risk-explanation-text"></div>
+            </div>
+            
+            <!-- 统计数据 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="confidence-value"></div>
+                    <div class="label">置信度</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="malignant-value"></div>
+                    <div class="label">恶性概率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="benign-value"></div>
+                    <div class="label">良性概率</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3>📊 概率分布</h3>
+                <div class="prob-bar">
+                    <div id="prob-fill-malignant" class="prob-fill prob-malignant"></div>
+                    <div id="prob-fill-benign" class="prob-fill prob-benign"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                    <span>恶性</span>
+                    <span>良性</span>
+                </div>
+            </div>
+            
+            <!-- 影响因素 -->
+            <div class="factors-section">
+                <h3>🔍 关键影响因素</h3>
+                <div id="factors-list"></div>
+            </div>
+            
+            <!-- 应对方案 -->
+            <div style="margin-top: 30px;">
+                <h3>📋 应对方案</h3>
+                <div id="action-plan-container" class="action-plan"></div>
+            </div>
+            
+            <!-- 关键特征 -->
+            <div class="feature-importance">
+                <h3>🔑 特征重要性</h3>
+                <div id="feature-list"></div>
+            </div>
+            
+            <!-- 医嘱建议 -->
+            <div id="health-advice-section" style="margin-top: 25px; display: none;">
+                <h3>🏥 医嘱建议</h3>
+                <div id="health-advice-content" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 20px; margin-top: 10px;"></div>
+            </div>
+            
+            <!-- 报告操作 -->
+            <div style="margin-top: 25px;">
+                <h3>📄 报告操作</h3>
+                <button onclick="exportReport()" class="btn btn-success">📥 导出诊断报告</button>
+                <button onclick="exportAllReports()" class="btn btn-secondary" style="margin-left: 10px;">📥 导出全部报告</button>
+            </div>
+            
+            <!-- 免责声明 -->
+            <div class="disclaimer">
+                <h3>⚠️ 重要声明</h3>
+                <p>
+                    <strong>本系统预测结果仅供参考，不能替代专业医生诊断。</strong> 
+                    预测模型基于统计学方法，存在一定的误判率。无论结果如何，如有任何健康疑虑，请务必咨询专业医生。
+                    早期发现和及时治疗是提高乳腺癌治愈率的关键。
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let uploadedImage = null;
+
+function fillRandomData() {
+    var exampleData = {
+        radius_mean: 17.99, texture_mean: 10.38, perimeter_mean: 122.8, area_mean: 1001, smoothness_mean: 0.1184,
+        compactness_mean: 0.2776, concavity_mean: 0.3001, concave_points_mean: 0.1471, symmetry_mean: 0.2419, fractal_dimension_mean: 0.07871,
+        radius_se: 1.095, texture_se: 0.9053, perimeter_se: 8.589, area_se: 153.4, smoothness_se: 0.006399,
+        compactness_se: 0.04904, concavity_se: 0.05373, concave_points_se: 0.01587, symmetry_se: 0.03003, fractal_dimension_se: 0.006193,
+        radius_worst: 25.38, texture_worst: 17.33, perimeter_worst: 184.6, area_worst: 2019, smoothness_worst: 0.1622,
+        compactness_worst: 0.6656, concavity_worst: 0.7119, concave_points_worst: 0.2654, symmetry_worst: 0.4601, fractal_dimension_worst: 0.1189
+    };
+    
+    Object.keys(exampleData).forEach(key => {
+        document.getElementById(key).value = exampleData[key];
+    });
+}
+
+function clearForm() {
+    document.querySelectorAll('input').forEach(input => input.value = '');
+    document.getElementById('result-container').style.display = 'none';
+    uploadedImage = null;
+}
+
+async function submitPrediction() {
+    const features = {
+        radius_mean: document.getElementById('radius_mean').value,
+        texture_mean: document.getElementById('texture_mean').value,
+        perimeter_mean: document.getElementById('perimeter_mean').value,
+        area_mean: document.getElementById('area_mean').value,
+        smoothness_mean: document.getElementById('smoothness_mean').value,
+        compactness_mean: document.getElementById('compactness_mean').value,
+        concavity_mean: document.getElementById('concavity_mean').value,
+        concave_points_mean: document.getElementById('concave_points_mean').value,
+        symmetry_mean: document.getElementById('symmetry_mean').value,
+        fractal_dimension_mean: document.getElementById('fractal_dimension_mean').value,
+        radius_se: document.getElementById('radius_se').value,
+        texture_se: document.getElementById('texture_se').value,
+        perimeter_se: document.getElementById('perimeter_se').value,
+        area_se: document.getElementById('area_se').value,
+        smoothness_se: document.getElementById('smoothness_se').value,
+        compactness_se: document.getElementById('compactness_se').value,
+        concavity_se: document.getElementById('concavity_se').value,
+        concave_points_se: document.getElementById('concave_points_se').value,
+        symmetry_se: document.getElementById('symmetry_se').value,
+        fractal_dimension_se: document.getElementById('fractal_dimension_se').value,
+        radius_worst: document.getElementById('radius_worst').value,
+        texture_worst: document.getElementById('texture_worst').value,
+        perimeter_worst: document.getElementById('perimeter_worst').value,
+        area_worst: document.getElementById('area_worst').value,
+        smoothness_worst: document.getElementById('smoothness_worst').value,
+        compactness_worst: document.getElementById('compactness_worst').value,
+        concavity_worst: document.getElementById('concavity_worst').value,
+        concave_points_worst: document.getElementById('concave_points_worst').value,
+        symmetry_worst: document.getElementById('symmetry_worst').value,
+        fractal_dimension_worst: document.getElementById('fractal_dimension_worst').value,
+        model_type: document.getElementById('model_type').value
+    };
+
+    const emptyFields = Object.keys(features).filter(key => !features[key] && key !== 'model_type');
+    if (emptyFields.length > 0) {
+        alert('请填写所有特征数据');
+        return;
+    }
+
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('predict-btn').style.display = 'none';
+
+    try {
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(features)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const resultCard = document.getElementById('result-container');
+            resultCard.className = 'result-card ' + (data.result === '恶性' ? 'result-positive' : 'result-negative');
+            resultCard.style.display = 'block';
+            
+            document.getElementById('result-title').textContent = data.result === '恶性' ? '🔴 预测结果：恶性' : '🟢 预测结果：良性';
+            
+            // 风险解释
+            const riskProb = data.result === '恶性' ? data.malignant_prob : data.benign_prob;
+            const riskExplanation = getRiskExplanation(data.result, data.malignant_prob);
+            document.getElementById('risk-explanation-text').innerHTML = riskExplanation;
+            
+            // 更新环形进度条
+            updateGauge(data.malignant_prob, data.result);
+            
+            document.getElementById('confidence-value').textContent = data.confidence + '%';
+            document.getElementById('malignant-value').textContent = data.malignant_prob + '%';
+            document.getElementById('benign-value').textContent = data.benign_prob + '%';
+            
+            document.getElementById('prob-fill-malignant').style.width = data.malignant_prob + '%';
+            document.getElementById('prob-fill-benign').style.width = data.benign_prob + '%';
+            
+            // 更新特征重要性
+            const featureList = document.getElementById('feature-list');
+            featureList.innerHTML = '';
+            data.top_features.forEach(feature => {
+                const row = document.createElement('div');
+                row.className = 'feature-row';
+                row.innerHTML = `<span>${feature.name}</span><span style="color: #667eea; font-weight: 500;">${(feature.importance * 100).toFixed(2)}%</span>`;
+                featureList.appendChild(row);
+            });
+            
+            // 更新影响因素
+            updateFactors(data.result, data.top_features, features);
+            
+            // 更新应对方案
+            updateActionPlan(data.result, data.malignant_prob);
+
+            // 更新医嘱建议
+            updateHealthAdvice(data.result);
+
+            window.currentPredictionId = data.prediction_id;
+        } else {
+            alert('预测失败：' + data.message);
+        }
+    } catch (error) {
+        alert('预测失败：网络错误');
+    } finally {
+        document.getElementById('loading-spinner').style.display = 'none';
+        document.getElementById('predict-btn').style.display = 'block';
+    }
+}
+
+function updateGauge(value, result) {
+    const gaugeFill = document.getElementById('gauge-fill');
+    const gaugeValue = document.getElementById('gauge-value');
+    const gaugeLabel = document.getElementById('gauge-label');
+    
+    const circumference = 2 * Math.PI * 40;
+    const offset = circumference - (value / 100) * circumference;
+    
+    gaugeFill.style.strokeDashoffset = offset;
+    gaugeFill.className = 'gauge-fill ' + (result === '恶性' ? 'malignant' : 'benign');
+    gaugeValue.textContent = value + '%';
+    gaugeLabel.textContent = result === '恶性' ? '恶性风险' : '良性概率';
+}
+
+function getRiskExplanation(result, malignantProb) {
+    if (result === '恶性') {
+        if (malignantProb >= 80) {
+            return `
+                <p><strong>📊 根据您的信息，当前患乳腺癌的风险为 ${malignantProb}%，建议立即就医。</strong></p>
+                <p style="color: #dc3545; margin-top: 10px;">
+                    ⚠️ 高风险预警：模型高度怀疑为恶性肿瘤，请务必在3-7天内就医检查。
+                </p>
+            `;
+        } else if (malignantProb >= 50) {
+            return `
+                <p><strong>📊 根据您的信息，当前患乳腺癌的风险为 ${malignantProb}%，建议尽快就医。</strong></p>
+                <p style="color: #ffc107; margin-top: 10px;">
+                    ⚠️ 中高风险：模型怀疑为恶性肿瘤，建议在1-2周内咨询专业医生。
+                </p>
+            `;
+        } else {
+            return `
+                <p><strong>📊 根据您的信息，当前患乳腺癌的风险为 ${malignantProb}%，建议进一步检查。</strong></p>
+                <p style="color: #ffc107; margin-top: 10px;">
+                    ⚠️ 中等风险：模型倾向于恶性，但仍有一定不确定性，建议咨询医生确认。
+                </p>
+            `;
+        }
+    } else {
+        const benignProb = 100 - malignantProb;
+        if (benignProb >= 80) {
+            return `
+                <p><strong>📊 根据您的信息，当前为良性病变的概率为 ${benignProb}%，可以放心。</strong></p>
+                <p style="color: #28a745; margin-top: 10px;">
+                    ✅ 低风险：模型高度确认是良性病变，但仍建议定期复查。
+                </p>
+            `;
+        } else if (benignProb >= 50) {
+            return `
+                <p><strong>📊 根据您的信息，当前为良性病变的概率为 ${benignProb}%，建议定期观察。</strong></p>
+                <p style="color: #28a745; margin-top: 10px;">
+                    ✅ 较低风险：模型倾向于良性，但建议定期观察随访。
+                </p>
+            `;
+        } else {
+            return `
+                <p><strong>📊 根据您的信息，当前为良性病变的概率为 ${benignProb}%，建议咨询医生。</strong></p>
+                <p style="color: #ffc107; margin-top: 10px;">
+                    ⚠️ 中等风险：模型倾向于良性，但仍有不确定性，建议咨询医生。
+                </p>
+            `;
+        }
+    }
+}
+
+function updateFactors(result, topFeatures, inputData) {
+    const factorsList = document.getElementById('factors-list');
+    factorsList.innerHTML = '';
+    
+    const highFactors = topFeatures.slice(0, 3).map(f => {
+        const value = parseFloat(inputData[f.name.replace(/ /g, '_')]) || 0;
+        return { name: f.name, value: value, isHigh: result === '恶性' };
+    });
+    
+    highFactors.forEach((factor, index) => {
+        const card = document.createElement('div');
+        card.className = 'factor-card ' + (factor.isHigh ? 'factor-high' : 'factor-low');
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>${factor.isHigh ? '⚠️' : '✅'} ${factor.name}</strong>
+                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                        数值：${factor.value.toFixed(3)}
+                    </div>
+                </div>
+                <span style="font-weight: bold; color: ${factor.isHigh ? '#dc3545' : '#28a745'};">
+                    ${factor.isHigh ? '高风险' : '低风险'}
+                </span>
+            </div>
+        `;
+        factorsList.appendChild(card);
+    });
+}
+
+function updateActionPlan(result, malignantProb) {
+    const container = document.getElementById('action-plan-container');
+    
+    if (result === '恶性') {
+        let urgency = 'high';
+        if (malignantProb >= 80) urgency = 'urgent';
+        else if (malignantProb >= 50) urgency = 'high';
+        else urgency = 'medium';
+        
+        container.innerHTML = `
+            <div class="action-item">
+                <h4>🏥 立即就医</h4>
+                <ul>
+                    <li>预约三甲医院乳腺专科</li>
+                    <li>准备好所有检查报告</li>
+                    <li>记录症状出现时间</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>🔬 检查项目</h4>
+                <ul>
+                    <li>乳腺超声检查</li>
+                    <li>乳腺钼靶检查</li>
+                    <li>必要时穿刺活检</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>💬 沟通要点</h4>
+                <ul>
+                    <li>告知家族病史</li>
+                    <li>详细描述症状</li>
+                    <li>询问治疗方案</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>❤️ 心理准备</h4>
+                <ul>
+                    <li>保持积极心态</li>
+                    <li>与家人沟通</li>
+                    <li>寻求病友支持</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="action-item">
+                <h4>📅 定期复查</h4>
+                <ul>
+                    <li>每年一次乳腺检查</li>
+                    <li>40岁以上考虑钼靶</li>
+                    <li>记录身体变化</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>🥗 健康生活</h4>
+                <ul>
+                    <li>保持均衡饮食</li>
+                    <li>每周规律运动</li>
+                    <li>控制体重</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>👆 自我检查</h4>
+                <ul>
+                    <li>学习乳腺自查方法</li>
+                    <li>月经后7-10天检查</li>
+                    <li>发现异常及时就医</li>
+                </ul>
+            </div>
+            <div class="action-item">
+                <h4>💡 健康知识</h4>
+                <ul>
+                    <li>了解乳腺癌预防</li>
+                    <li>识别早期症状</li>
+                    <li>保持良好心态</li>
+                </ul>
+            </div>
+        `;
+    }
+}
+
+function updateHealthAdvice(result) {
+    const healthAdviceSection = document.getElementById('health-advice-section');
+    const healthAdviceContent = document.getElementById('health-advice-content');
+    healthAdviceSection.style.display = 'block';
+
+    if (result === '恶性') {
+        healthAdviceContent.innerHTML = `
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #dc3545; margin-bottom: 10px;">⚠️ 高风险预警</h4>
+                <p style="color: #666; line-height: 1.6;">根据预测结果，您的情况需要高度重视。建议立即就医，进行进一步检查和诊断。</p>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 8px;">📋 医嘱建议</h4>
+                <div style="margin-bottom: 6px;">1. 立即预约乳腺专科医生进行面诊</div>
+                <div style="margin-bottom: 6px;">2. 准备好所有检查报告供医生参考</div>
+                <div style="margin-bottom: 6px;">3. 遵从医嘱进行进一步检查（如穿刺活检）</div>
+                <div style="margin-bottom: 6px;">4. 保持积极心态，及时治疗</div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 8px;">🏥 专业医疗咨询渠道</h4>
+                <div style="margin-bottom: 6px;">• 中国抗癌协会：<a href="https://www.caca.org.cn" target="_blank">www.caca.org.cn</a></div>
+                <div style="margin-bottom: 6px;">• 中国乳腺癌筛查指南：<a href="https://www.nhc.gov.cn" target="_blank">www.nhc.gov.cn</a></div>
+                <div style="margin-bottom: 6px;">• 中国医学科学院肿瘤医院：<a href="https://www.cicams.ac.cn" target="_blank">www.cicams.ac.cn</a></div>
+                <div style="margin-bottom: 6px;">• 北京协和医院乳腺外科：<a href="https://www.pumch.ac.cn" target="_blank">www.pumch.ac.cn</a></div>
+                <div style="margin-bottom: 6px;">• 复旦大学附属肿瘤医院：<a href="https://www.shca.org.cn" target="_blank">www.shca.org.cn</a></div>
+            </div>
+            <div style="padding: 12px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <strong>💡 温馨提示：</strong>请尽快到当地三甲医院乳腺专科就诊，遵循专业医生建议。
+            </div>
+        `;
+    } else {
+        healthAdviceContent.innerHTML = `
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #28a745; margin-bottom: 10px;">✅ 低风险结果</h4>
+                <p style="color: #666; line-height: 1.6;">根据预测结果，您的情况较为乐观，但仍需保持关注和定期检查。</p>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 8px;">📋 医嘱建议</h4>
+                <div style="margin-bottom: 6px;">1. 定期进行乳腺检查，建议每年一次</div>
+                <div style="margin-bottom: 6px;">2. 保持健康的生活方式，均衡饮食</div>
+                <div style="margin-bottom: 6px;">3. 学习乳腺自我检查方法</div>
+                <div style="margin-bottom: 6px;">4. 保持良好心态，避免过度焦虑</div>
+                <div style="margin-bottom: 6px;">5. 如有不适，及时就医</div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 8px;">📚 了解更多</h4>
+                <div style="margin-bottom: 6px;">• 生活方式干预建议：<a href="/lifestyle-intervention">点击查看</a></div>
+                <div style="margin-bottom: 6px;">• AI健康助手：<a href="/ai-chat-page">点击咨询</a></div>
+            </div>
+            <div style="padding: 12px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
+                <strong>💡 温馨提示：</strong>虽然结果较为乐观，但仍建议定期复查，保持健康生活习惯。
+            </div>
+        `;
+    }
+}
+
+function exportReport() {
+    if (window.currentPredictionId) {
+        window.location.href = `/api/export-report/${window.currentPredictionId}`;
+    } else {
+        alert('请先进行一次预测');
+    }
+}
+
+function exportAllReports() {
+    window.location.href = '/api/export-all-reports';
+}
+</script>
+{% endblock %}

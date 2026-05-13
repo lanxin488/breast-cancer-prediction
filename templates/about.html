@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}关于我们 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>🏥 关于乳腺癌预测系统</h2>
+        
+        <div class="about-section">
+            <h3>项目背景</h3>
+            <p>乳腺癌是女性最常见的恶性肿瘤之一，早期发现和诊断对于提高治愈率至关重要。本系统旨在利用机器学习技术，为乳腺肿瘤的良恶性判断提供辅助支持，帮助用户了解自身健康状况。</p>
+        </div>
+
+        <div class="about-section">
+            <h3>技术实现</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <span class="tech-icon">🐍</span>
+                    <div class="tech-info">
+                        <h4>Python</h4>
+                        <p>后端核心编程语言</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-icon">⚗️</span>
+                    <div class="tech-info">
+                        <h4>Flask</h4>
+                        <p>Web应用框架</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-icon">🐬</span>
+                    <div class="tech-info">
+                        <h4>MySQL</h4>
+                        <p>数据库管理系统</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-icon">🔬</span>
+                    <div class="tech-info">
+                        <h4>scikit-learn</h4>
+                        <p>机器学习库</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-icon">🌲</span>
+                    <div class="tech-info">
+                        <h4>随机森林</h4>
+                        <p>核心分类算法</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-icon">📈</span>
+                    <div class="tech-info">
+                        <h4>逻辑回归</h4>
+                        <p>对比分类算法</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h3>数据集来源</h3>
+            <p>本系统使用的数据集来自 UCI 机器学习仓库的威斯康星乳腺癌数据集（Wisconsin Breast Cancer Dataset），包含569个样本，每个样本包含30个特征指标，用于描述乳腺肿瘤的特征。</p>
+        </div>
+
+        <div class="about-section">
+            <h3>模型训练</h3>
+            <p>系统采用监督学习方法，使用随机森林和逻辑回归两种算法进行训练。数据集按8:2的比例划分为训练集和测试集，通过交叉验证确保模型的泛化能力。</p>
+        </div>
+
+        <div class="about-section">
+            <h3>免责声明</h3>
+            <div class="disclaimer-box">
+                <p>⚠️ <strong>重要提示：</strong></p>
+                <p>本系统仅供学习研究和参考使用，不能替代专业医生的诊断。如果您发现任何异常症状或对预测结果有疑虑，请务必咨询专业的乳腺科医生进行检查和诊断。</p>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h3>联系方式</h3>
+            <p>如有任何问题或建议，请通过以下方式联系我们：</p>
+            <ul>
+                <li>📧 邮箱：support@breastcancer-prediction.com</li>
+                <li>📱 反馈：欢迎在系统中提出您的意见</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h3>版本信息</h3>
+            <p>版本：v1.0.0</p>
+            <p>更新日期：2024年12月</p>
+            <p>© 2024 乳腺癌预测系统</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .about-section h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+    .about-section p {
+        color: #666;
+        line-height: 1.8;
+    }
+    .about-section ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .about-section li {
+        padding: 8px 0;
+        color: #555;
+    }
+    .tech-stack {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .tech-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    .tech-icon {
+        font-size: 32px;
+    }
+    .tech-info h4 {
+        margin-bottom: 3px;
+        color: #333;
+    }
+    .tech-info p {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+    }
+    .disclaimer-box {
+        background: #fff3e0;
+        border-left: 4px solid #ff9800;
+        padding: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .disclaimer-box p {
+        margin: 5px 0;
+        color: #5d4037;
+    }
+</style>
+{% endblock %}

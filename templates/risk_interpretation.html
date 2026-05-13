@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}风险解读 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📊 风险解读</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; background: #e8f5e9; border-radius: 10px;">
+                <h3 style="color: #4CAF50; margin-bottom: 15px;">🟢 良性预测</h3>
+                <p style="color: #666; font-size: 14px; line-height: 1.6;">
+                    良性预测表示根据您提供的数据，模型判断肿瘤为良性的可能性较高。但这只是参考，请定期进行医学检查。
+                </p>
+            </div>
+            
+            <div style="padding: 20px; background: #ffebee; border-radius: 10px;">
+                <h3 style="color: #F44336; margin-bottom: 15px;">🔴 恶性预测</h3>
+                <p style="color: #666; font-size: 14px; line-height: 1.6;">
+                    恶性预测表示根据您提供的数据，模型判断肿瘤为恶性的可能性较高。请立即咨询专业医生进行进一步检查。
+                </p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>📈 概率解读</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <ul style="color: #666; line-height: 1.6; padding-left: 20px;">
+                    <li><strong>恶性概率 &lt; 30%:</strong> 低度风险，但仍建议定期筛查</li>
+                    <li><strong>30% ≤ 恶性概率 &lt; 60%:</strong> 中度风险，建议咨询医生</li>
+                    <li><strong>恶性概率 ≥ 60%:</strong> 高度风险，建议立即就医检查</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>🔑 特征重要性说明</h3>
+            <p style="color: #666; line-height: 1.6;">
+                特征重要性显示了哪些输入特征对预测结果影响最大。例如，<strong>concave points</strong>（凹点）和 <strong>radius</strong>（半径）通常是判断恶性肿瘤的重要指标。
+            </p>
+        </div>
+    </div>
+{% endblock %}

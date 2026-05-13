@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}生活方式干预 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>💡 生活方式干预</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; background: #e8f5e9; border-radius: 10px;">
+                <h3 style="color: #4CAF50; margin-bottom: 15px;">🏃 运动建议</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>每周至少150分钟中等强度运动</li>
+                    <li>快走、慢跑、游泳都是很好的选择</li>
+                    <li>避免久坐，每小时起身活动</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 20px; background: #fff3e0; border-radius: 10px;">
+                <h3 style="color: #FF9800; margin-bottom: 15px;">🍎 饮食建议</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>多吃蔬菜水果，每日5份以上</li>
+                    <li>减少红肉摄入，避免加工肉类</li>
+                    <li>限制酒精摄入，最好不饮酒</li>
+                    <li>选择全谷物和豆类</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 20px; background: #e3f2fd; border-radius: 10px;">
+                <h3 style="color: #2196F3; margin-bottom: 15px;">😴 生活习惯</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>保证充足睡眠，每晚7-8小时</li>
+                    <li>保持积极心态，学会减压</li>
+                    <li>不吸烟，远离二手烟</li>
+                    <li>定期体检，关注身体变化</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 20px; background: #f3e5f5; border-radius: 10px;">
+                <h3 style="color: #9C27B0; margin-bottom: 15px;">👗 体重管理</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>保持健康的BMI指数 (18.5-23.9)</li>
+                    <li>避免过度肥胖，尤其是绝经后</li>
+                    <li>均衡饮食+运动，健康减重</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>📋 自我检查指南</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <ol style="color: #666; line-height: 1.6; padding-left: 20px;">
+                    <li><strong>观察:</strong> 站在镜子前，观察乳房形状、大小是否对称，皮肤有无异常</li>
+                    <li><strong>触摸:</strong> 用指腹轻轻触摸乳房，检查是否有肿块</li>
+                    <li><strong>挤压:</strong> 轻轻挤压乳头，检查有无溢液</li>
+                    <li><strong>频率:</strong> 每月一次，建议在月经结束后7-10天进行</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

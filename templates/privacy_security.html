@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}隐私安全 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>🔒 隐私安全</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; background: #e8f5e9; border-radius: 10px;">
+                <h3 style="color: #4CAF50; margin-bottom: 15px;">🔐 数据加密</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>密码使用安全哈希算法加密</li>
+                    <li>敏感数据传输采用加密协议</li>
+                    <li>数据库访问严格控制</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 20px; background: #e3f2fd; border-radius: 10px;">
+                <h3 style="color: #2196F3; margin-bottom: 15px;">🛡️ 隐私保护</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>不收集真实医疗数据</li>
+                    <li>用户数据仅用于系统功能</li>
+                    <li>不会向第三方分享数据</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 20px; background: #fff3e0; border-radius: 10px;">
+                <h3 style="color: #FF9800; margin-bottom: 15px;">⚠️ 使用提示</h3>
+                <ul style="color: #666; font-size: 14px; line-height: 1.6; padding-left: 20px;">
+                    <li>本系统仅供学习研究</li>
+                    <li>请勿输入真实个人信息</li>
+                    <li>定期更换密码</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>📋 安全建议</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <ol style="color: #666; line-height: 1.6; padding-left: 20px;">
+                    <li><strong>密码安全:</strong> 使用复杂密码，包含大小写字母、数字和特殊字符</li>
+                    <li><strong>账号保护:</strong> 不要与他人共享账号密码</li>
+                    <li><strong>数据谨慎:</strong> 不要在公共网络环境下使用系统</li>
+                    <li><strong>定期检查:</strong> 定期查看账户登录记录</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

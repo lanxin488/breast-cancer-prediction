@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}模型对比 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>⚖️ 模型对比分析</h2>
+        
+        <div class="comparison-summary">
+            <h3>模型性能对比</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>评估指标</th>
+                        <th>随机森林</th>
+                        <th>逻辑回归</th>
+                        <th>推荐选择</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>准确率</td>
+                        <td>{{ (metrics['Random Forest'].accuracy * 100)|round(2) }}%</td>
+                        <td>{{ (metrics['Logistic Regression'].accuracy * 100)|round(2) }}%</td>
+                        <td>{{ '随机森林' if metrics['Random Forest'].accuracy > metrics['Logistic Regression'].accuracy else '逻辑回归' }}</td>
+                    </tr>
+                    <tr>
+                        <td>精确率</td>
+                        <td>{{ (metrics['Random Forest'].precision * 100)|round(2) }}%</td>
+                        <td>{{ (metrics['Logistic Regression'].precision * 100)|round(2) }}%</td>
+                        <td>{{ '随机森林' if metrics['Random Forest'].precision > metrics['Logistic Regression'].precision else '逻辑回归' }}</td>
+                    </tr>
+                    <tr>
+                        <td>召回率</td>
+                        <td>{{ (metrics['Random Forest'].recall * 100)|round(2) }}%</td>
+                        <td>{{ (metrics['Logistic Regression'].recall * 100)|round(2) }}%</td>
+                        <td>{{ '随机森林' if metrics['Random Forest'].recall > metrics['Logistic Regression'].recall else '逻辑回归' }}</td>
+                    </tr>
+                    <tr>
+                        <td>F1值</td>
+                        <td>{{ (metrics['Random Forest'].f1 * 100)|round(2) }}%</td>
+                        <td>{{ (metrics['Logistic Regression'].f1 * 100)|round(2) }}%</td>
+                        <td>{{ '随机森林' if metrics['Random Forest'].f1 > metrics['Logistic Regression'].f1 else '逻辑回归' }}</td>
+                    </tr>
+                    <tr>
+                        <td>AUC</td>
+                        <td>{{ (metrics['Random Forest'].roc_auc * 100)|round(2) }}%</td>
+                        <td>{{ (metrics['Logistic Regression'].roc_auc * 100)|round(2) }}%</td>
+                        <td>{{ '随机森林' if metrics['Random Forest'].roc_auc > metrics['Logistic Regression'].roc_auc else '逻辑回归' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="comparison-charts">
+            <h3>可视化对比</h3>
+            
+            <div class="chart-row">
+                <div class="chart-card">
+                    <h4>准确率对比</h4>
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <span class="bar-label">随机森林</span>
+                            <div class="bar-container">
+                                <div class="bar rf" style="height: {{ metrics['Random Forest'].accuracy * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Random Forest'].accuracy * 100)|round(1) }}%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">逻辑回归</span>
+                            <div class="bar-container">
+                                <div class="bar lr" style="height: {{ metrics['Logistic Regression'].accuracy * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Logistic Regression'].accuracy * 100)|round(1) }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h4>F1值对比</h4>
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <span class="bar-label">随机森林</span>
+                            <div class="bar-container">
+                                <div class="bar rf" style="height: {{ metrics['Random Forest'].f1 * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Random Forest'].f1 * 100)|round(1) }}%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">逻辑回归</span>
+                            <div class="bar-container">
+                                <div class="bar lr" style="height: {{ metrics['Logistic Regression'].f1 * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Logistic Regression'].f1 * 100)|round(1) }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h4>AUC对比</h4>
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <span class="bar-label">随机森林</span>
+                            <div class="bar-container">
+                                <div class="bar rf" style="height: {{ metrics['Random Forest'].roc_auc * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Random Forest'].roc_auc * 100)|round(1) }}%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">逻辑回归</span>
+                            <div class="bar-container">
+                                <div class="bar lr" style="height: {{ metrics['Logistic Regression'].roc_auc * 100 }}%"></div>
+                            </div>
+                            <span class="bar-value">{{ (metrics['Logistic Regression'].roc_auc * 100)|round(1) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="model-features">
+            <h3>模型特点对比</h3>
+            <div class="features-grid">
+                <div class="feature-card rf-card">
+                    <h4>🌲 随机森林</h4>
+                    <ul>
+                        <li>✅ 集成学习算法，鲁棒性强</li>
+                        <li>✅ 处理非线性数据能力强</li>
+                        <li>✅ 自动处理特征交互</li>
+                        <li>✅ 不易过拟合</li>
+                        <li>❌ 训练速度较慢</li>
+                        <li>❌ 模型解释性较差</li>
+                    </ul>
+                </div>
+                <div class="feature-card lr-card">
+                    <h4>📈 逻辑回归</h4>
+                    <ul>
+                        <li>✅ 训练速度快</li>
+                        <li>✅ 模型解释性强</li>
+                        <li>✅ 参数容易调整</li>
+                        <li>✅ 占用内存小</li>
+                        <li>❌ 假设数据线性可分</li>
+                        <li>❌ 对异常值敏感</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendation">
+            <h3>💡 推荐建议</h3>
+            <div class="recommendation-card">
+                <div class="recommendation-header">
+                    <span class="recommendation-icon">🏆</span>
+                    <span class="recommendation-title">推荐使用：随机森林</span>
+                </div>
+                <p>基于测试数据的评估结果，随机森林在所有指标上均表现更优，是本系统的默认推荐模型。</p>
+                <ul>
+                    <li><strong>准确率更高：</strong>能够更准确地判断肿瘤的良恶性</li>
+                    <li><strong>鲁棒性更强：</strong>对数据噪声和异常值不敏感</li>
+                    <li><strong>稳定性更好：</strong>多次预测结果更一致</li>
+                </ul>
+                <p>当然，您也可以在预测页面选择逻辑回归进行对比分析，以了解不同算法的预测差异。</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .comparison-table th, .comparison-table td {
+        padding: 12px 15px;
+        border: 1px solid #eee;
+        text-align: center;
+    }
+    .comparison-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+    }
+    .comparison-table tr:hover {
+        background: #f8f9fa;
+    }
+    .comparison-charts {
+        margin-top: 30px;
+    }
+    .chart-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .chart-card {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .chart-card h4 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .bar-chart {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .bar-item {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .bar-label {
+        width: 80px;
+        font-size: 13px;
+        color: #666;
+    }
+    .bar-container {
+        flex: 1;
+        height: 80px;
+        background: #eee;
+        border-radius: 5px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+    }
+    .bar {
+        width: 100%;
+        border-radius: 5px 5px 0 0;
+        transition: height 0.5s;
+    }
+    .bar.rf {
+        background: linear-gradient(to top, #9C27B0, #ce93d8);
+    }
+    .bar.lr {
+        background: linear-gradient(to top, #00BCD4, #84ffff);
+    }
+    .bar-value {
+        width: 60px;
+        font-weight: 500;
+        color: #333;
+        font-size: 13px;
+    }
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .feature-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid;
+    }
+    .feature-card.rf-card {
+        border-color: #9C27B0;
+    }
+    .feature-card.lr-card {
+        border-color: #00BCD4;
+    }
+    .feature-card h4 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .feature-card ul {
+        list-style: none;
+        padding: 0;
+    }
+    .feature-card li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        color: #555;
+    }
+    .feature-card li:last-child {
+        border-bottom: none;
+    }
+    .recommendation {
+        margin-top: 30px;
+    }
+    .recommendation-card {
+        background: linear-gradient(135deg, #fff3e0, #fff8e1);
+        padding: 25px;
+        border-radius: 10px;
+        border-left: 4px solid #ff9800;
+    }
+    .recommendation-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .recommendation-icon {
+        font-size: 28px;
+    }
+    .recommendation-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #5d4037;
+    }
+    .recommendation-card p {
+        color: #5d4037;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    .recommendation-card ul {
+        padding-left: 20px;
+    }
+    .recommendation-card li {
+        color: #5d4037;
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}

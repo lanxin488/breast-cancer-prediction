@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}模型性能 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📊 模型性能评估</h2>
+        
+        <div class="performance-section">
+            <h3>模型评估指标</h3>
+            
+            {% for model_name, metrics in metrics.items() %}
+            <div class="model-card">
+                <h4>{{ model_name }}</h4>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">{{ (metrics.accuracy * 100)|round(2) }}%</div>
+                        <div class="metric-label">准确率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ (metrics.precision * 100)|round(2) }}%</div>
+                        <div class="metric-label">精确率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ (metrics.recall * 100)|round(2) }}%</div>
+                        <div class="metric-label">召回率</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ (metrics.f1 * 100)|round(2) }}%</div>
+                        <div class="metric-label">F1值</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ (metrics.roc_auc * 100)|round(2) }}%</div>
+                        <div class="metric-label">AUC</div>
+                    </div>
+                </div>
+                
+                <div class="confusion-matrix">
+                    <h5>混淆矩阵</h5>
+                    <div class="matrix-table">
+                        <div class="matrix-row">
+                            <div class="matrix-cell header"></div>
+                            <div class="matrix-cell header">预测良性</div>
+                            <div class="matrix-cell header">预测恶性</div>
+                        </div>
+                        <div class="matrix-row">
+                            <div class="matrix-cell header">实际良性</div>
+                            <div class="matrix-cell tp">{{ metrics.confusion_matrix[1][1] }}</div>
+                            <div class="matrix-cell fn">{{ metrics.confusion_matrix[1][0] }}</div>
+                        </div>
+                        <div class="matrix-row">
+                            <div class="matrix-cell header">实际恶性</div>
+                            <div class="matrix-cell fp">{{ metrics.confusion_matrix[0][1] }}</div>
+                            <div class="matrix-cell tn">{{ metrics.confusion_matrix[0][0] }}</div>
+                        </div>
+                    </div>
+                    <div class="matrix-legend">
+                        <span>✓ 真阳性: 实际良性，预测良性</span>
+                        <span>✗ 假阴性: 实际良性，预测恶性</span>
+                        <span>✗ 假阳性: 实际恶性，预测良性</span>
+                        <span>✓ 真阴性: 实际恶性，预测恶性</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="performance-section">
+            <h3>🔑 特征重要性（随机森林）</h3>
+            <div class="feature-importance-list">
+                {% for feature in feature_importance %}
+                <div class="feature-item">
+                    <span class="feature-name">{{ feature.name }}</span>
+                    <div class="importance-bar-container">
+                        <div class="importance-bar" style="width: {{ feature.importance * 100 }}%"></div>
+                    </div>
+                    <span class="importance-value">{{ (feature.importance * 100)|round(2) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="performance-section">
+            <h3>💡 指标说明</h3>
+            <div class="metrics-explanation">
+                <div class="explanation-item">
+                    <h4>准确率 (Accuracy)</h4>
+                    <p>正确预测的样本占总样本的比例。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>精确率 (Precision)</h4>
+                    <p>预测为恶性的样本中，实际为恶性的比例。高精确率意味着更少的假阳性。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>召回率 (Recall)</h4>
+                    <p>实际为恶性的样本中，被正确预测为恶性的比例。高召回率意味着更少的假阴性。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>F1值 (F1 Score)</h4>
+                    <p>精确率和召回率的调和平均数，综合衡量模型性能。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>AUC</h4>
+                    <p>ROC曲线下的面积，衡量模型区分正负样本的能力，范围0.5-1，越接近1越好。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .performance-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .performance-section h3 {
+        color: #667eea;
+        margin-bottom: 20px;
+    }
+    .model-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    .model-card h4 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .metric-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .metric-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    .metric-label {
+        font-size: 13px;
+        color: #666;
+    }
+    .confusion-matrix {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    .confusion-matrix h5 {
+        color: #555;
+        margin-bottom: 15px;
+    }
+    .matrix-table {
+        display: inline-block;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .matrix-row {
+        display: flex;
+    }
+    .matrix-cell {
+        width: 80px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ddd;
+        font-weight: 500;
+    }
+    .matrix-cell.header {
+        background: #f0f0f0;
+        font-size: 12px;
+        color: #666;
+        width: 100px;
+    }
+    .matrix-cell.tp { background: #e8f5e9; color: #4CAF50; }
+    .matrix-cell.fn { background: #ffebee; color: #F44336; }
+    .matrix-cell.fp { background: #fff3e0; color: #FF9800; }
+    .matrix-cell.tn { background: #e3f2fd; color: #2196F3; }
+    .matrix-legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+        font-size: 12px;
+        color: #666;
+    }
+    .feature-importance-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .feature-name {
+        width: 200px;
+        font-size: 14px;
+        color: #555;
+    }
+    .importance-bar-container {
+        flex: 1;
+        height: 20px;
+        background: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .importance-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 10px;
+        transition: width 0.5s;
+    }
+    .importance-value {
+        width: 60px;
+        text-align: right;
+        font-weight: 500;
+        color: #667eea;
+    }
+    .metrics-explanation {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .explanation-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .explanation-item h4 {
+        color: #667eea;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .explanation-item p {
+        color: #666;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}

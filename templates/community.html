@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}病友交流 - 乳腺癌预测系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .info-card {
+        border-radius: 15px;
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .card-recovery {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-left: 5px solid #4CAF50;
+    }
+    .card-support {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-left: 5px solid #2196F3;
+    }
+    .card-knowledge {
+        background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+        border-left: 5px solid #9C27B0;
+    }
+    .card-tips {
+        background: linear-gradient(135deg, #fff3cd, #ffeeba);
+        border-left: 5px solid #FFC107;
+    }
+    .group-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin: 15px 0;
+    }
+    .group-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .group-icon {
+        font-size: 40px;
+    }
+    .group-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .tag {
+        background: #e3f2fd;
+        color: #1976D2;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+    .tag-success {
+        background: #e8f5e9;
+        color: #4CAF50;
+    }
+    .tag-warning {
+        background: #fff3cd;
+        color: #FFC107;
+    }
+    .section-box {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+    }
+    .hospital-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .hospital-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        text-decoration: none;
+        color: #333;
+    }
+    .hospital-card:hover {
+        transform: translateY(-5px);
+        border-color: #667eea;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    }
+    .hospital-card .logo {
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+    .primary-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+        display: inline-block;
+        text-decoration: none;
+    }
+    .primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    .secondary-btn {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        padding: 10px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .secondary-btn:hover {
+        background: #667eea;
+        color: white;
+    }
+    .advice-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .advice-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .advice-list li:last-child {
+        border-bottom: none;
+    }
+    .advice-list .icon {
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>👥 病友交流社区</h2>
+        
+        <div class="card-grid">
+            <div class="info-card card-recovery">
+                <h3>💪 康复故事</h3>
+                <p style="color: #666; line-height: 1.6;">
+                    许多患者在积极治疗和良好心态下成功康复。保持信心，相信医学的力量。
+                </p>
+                <div style="margin-top: 15px;">
+                    <span class="tag tag-success">治愈分享</span>
+                    <span class="tag tag-success">经验交流</span>
+                </div>
+            </div>
+            
+            <div class="info-card card-support">
+                <h3>🤝 互助支持</h3>
+                <p style="color: #666; line-height: 1.6;">
+                    加入病友群，与其他患者交流经验，互相鼓励，共同战胜疾病。
+                </p>
+                <div style="margin-top: 15px;">
+                    <span class="tag">心理支持</span>
+                    <span class="tag">经验分享</span>
+                </div>
+            </div>
+            
+            <div class="info-card card-knowledge">
+                <h3>📚 知识分享</h3>
+                <p style="color: #666; line-height: 1.6;">
+                    分享最新的治疗方案、康复经验和健康知识，帮助更多人了解乳腺癌。
+                </p>
+                <div style="margin-top: 15px;">
+                    <span class="tag">科普知识</span>
+                    <span class="tag">最新研究</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h3>💬 病友交流群</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div class="group-card">
+                    <div class="group-header">
+                        <div class="group-icon">💬</div>
+                        <div>
+                            <h4 style="margin: 0;">全国乳腺癌病友群</h4>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">最大的乳腺癌患者互助社群</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="primary-btn" style="padding: 8px 20px; font-size: 13px;">加入微信群</div>
+                        <div class="secondary-btn" style="padding: 8px 20px; font-size: 13px;">查看详情</div>
+                    </div>
+                    <div class="group-tags">
+                        <span class="tag">全国</span>
+                        <span class="tag">综合交流</span>
+                        <span class="tag tag-success">5000+成员</span>
+                    </div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-header">
+                        <div class="group-icon">🔬</div>
+                        <div>
+                            <h4 style="margin: 0;">早期患者交流群</h4>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">针对早期患者的专属社群</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="primary-btn" style="padding: 8px 20px; font-size: 13px;">加入微信群</div>
+                        <div class="secondary-btn" style="padding: 8px 20px; font-size: 13px;">查看详情</div>
+                    </div>
+                    <div class="group-tags">
+                        <span class="tag tag-success">早期</span>
+                        <span class="tag">康复经验</span>
+                        <span class="tag">2000+成员</span>
+                    </div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-header">
+                        <div class="group-icon">💊</div>
+                        <div>
+                            <h4 style="margin: 0;">康复期病友群</h4>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">康复期患者的长期陪伴社群</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="primary-btn" style="padding: 8px 20px; font-size: 13px;">加入微信群</div>
+                        <div class="secondary-btn" style="padding: 8px 20px; font-size: 13px;">查看详情</div>
+                    </div>
+                    <div class="group-tags">
+                        <span class="tag tag-warning">康复期</span>
+                        <span class="tag">生活方式</span>
+                        <span class="tag">3000+成员</span>
+                    </div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-header">
+                        <div class="group-icon">💪</div>
+                        <div>
+                            <h4 style="margin: 0;">年轻患者专属群</h4>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">35岁以下年轻乳腺癌患者社群</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="primary-btn" style="padding: 8px 20px; font-size: 13px;">加入微信群</div>
+                        <div class="secondary-btn" style="padding: 8px 20px; font-size: 13px;">查看详情</div>
+                    </div>
+                    <div class="group-tags">
+                        <span class="tag">年轻患者</span>
+                        <span class="tag">生育咨询</span>
+                        <span class="tag">1000+成员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h3>📋 交流规范</h3>
+            <ul class="advice-list">
+                <li>
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>尊重他人隐私</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">不泄露他人个人信息，保护隐私安全</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>积极鼓励传递正能量</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">互相支持，共同面对，保持乐观心态</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>分享真实经验</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">基于个人经历分享，帮助他人参考</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>遇到问题及时就医</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">群内交流仅供参考，专业问题咨询医生</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <h3>🌐 专业医疗资源链接</h3>
+            <p style="color: #666; margin-bottom: 20px;">获取权威的乳腺癌防治信息和专业支持</p>
+            <div class="hospital-grid">
+                <a href="https://www.caca.org.cn" target="_blank" class="hospital-card">
+                    <div class="logo">🏥</div>
+                    <h4>中国抗癌协会</h4>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">权威的肿瘤防治科普平台</p>
+                    <div style="color: #667eea; font-size: 13px;">访问官网 →</div>
+                </a>
+                <a href="https://www.nhc.gov.cn" target="_blank" class="hospital-card">
+                    <div class="logo">📖</div>
+                    <h4>国家卫健委</h4>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">最新政策和指南发布平台</p>
+                    <div style="color: #667eea; font-size: 13px;">访问官网 →</div>
+                </a>
+                <a href="https://www.cicams.ac.cn" target="_blank" class="hospital-card">
+                    <div class="logo">🔬</div>
+                    <h4>中国医学科学院肿瘤医院</h4>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">国内顶尖肿瘤专科医院</p>
+                    <div style="color: #667eea; font-size: 13px;">访问官网 →</div>
+                </a>
+                <a href="https://www.pumch.ac.cn" target="_blank" class="hospital-card">
+                    <div class="logo">👩‍⚕️</div>
+                    <h4>北京协和医院</h4>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">综合实力强，专科经验丰富</p>
+                    <div style="color: #667eea; font-size: 13px;">访问官网 →</div>
+                </a>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <h3>📱 在线论坛入口</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                <a href="#" class="secondary-btn">💬 病友论坛</a>
+                <a href="#" class="secondary-btn">📝 经验分享</a>
+                <a href="#" class="secondary-btn">👩‍⚕️ 专家问答</a>
+                <a href="#" class="secondary-btn">📚 知识库</a>
+            </div>
+        </div>
+
+        <div class="info-card card-tips" style="margin-top: 40px;">
+            <h3>💡 温馨提示</h3>
+            <ul class="advice-list">
+                <li>
+                    <span class="icon">⚠️</span>
+                    <div>
+                        <strong>群内信息仅供参考</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">病友经验分享不能替代专业医疗建议</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon">🔒</span>
+                    <div>
+                        <strong>保护个人隐私</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">不要在群内透露身份证号、银行卡等敏感信息</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon">🏥</span>
+                    <div>
+                        <strong>有问题及时就医</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">身体不适请及时到正规医院就诊</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

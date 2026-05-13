@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}健康资讯 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📚 乳腺癌健康资讯</h2>
+        
+        <div class="info-section">
+            <h3>🔍 什么是乳腺癌？</h3>
+            <p>乳腺癌是发生在乳腺上皮组织的恶性肿瘤，是女性最常见的恶性肿瘤之一，严重威胁着女性的生命健康。近年来，乳腺癌的发病率在全球范围内呈上升趋势，但随着医学技术的进步，早期发现和治疗的成功率也在不断提高。</p>
+        </div>
+
+        <div class="info-section">
+            <h3>⚠️ 乳腺癌的高危因素</h3>
+            <ul>
+                <li><strong>家族史：</strong>有乳腺癌家族史的女性患病风险更高</li>
+                <li><strong>年龄：</strong>40-60岁是高发年龄段</li>
+                <li><strong>月经史：</strong>月经初潮早、绝经晚的女性风险较高</li>
+                <li><strong>生育史：</strong>未生育或晚生育的女性风险较高</li>
+                <li><strong>激素替代治疗：</strong>长期使用激素替代治疗可能增加风险</li>
+                <li><strong>生活方式：</strong>肥胖、缺乏运动、饮酒等不良生活习惯</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h3>🔔 乳腺癌的早期症状</h3>
+            <ul>
+                <li><strong>乳房肿块：</strong>无痛性肿块是最常见的症状</li>
+                <li><strong>乳头溢液：</strong>非哺乳期乳头溢出血液或浆液</li>
+                <li><strong>乳头改变：</strong>乳头内陷、糜烂或不对称</li>
+                <li><strong>乳房皮肤改变：</strong>皮肤凹陷、红肿或橘皮样改变</li>
+                <li><strong>腋窝淋巴结肿大：</strong>腋窝出现无痛性肿块</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h3>✅ 乳腺癌的预防措施</h3>
+            <ul>
+                <li><strong>定期筛查：</strong>建议40岁以上女性每年进行乳腺筛查</li>
+                <li><strong>健康生活：</strong>保持健康体重、规律运动、均衡饮食</li>
+                <li><strong>自我检查：</strong>每月进行一次乳房自我检查</li>
+                <li><strong>避免危险因素：</strong>减少激素暴露、限制饮酒</li>
+                <li><strong>母乳喂养：</strong>母乳喂养可降低患病风险</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h3>🏥 乳腺癌的筛查方法</h3>
+            <div class="method-card">
+                <h4>📸 乳腺X线检查（钼靶）</h4>
+                <p>是目前最常用的筛查方法，能发现早期微小钙化灶，对40岁以上女性尤其有效。</p>
+            </div>
+            <div class="method-card">
+                <h4>🩻 乳腺超声检查</h4>
+                <p>对致密型乳腺更敏感，适合年轻女性和妊娠期、哺乳期女性。</p>
+            </div>
+            <div class="method-card">
+                <h4>🧲 乳腺MRI检查</h4>
+                <p>敏感性最高，用于高危人群筛查或进一步评估可疑病变。</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>💡 重要提示</h3>
+            <div class="warning-box">
+                <p>⚠️ <strong>本系统仅供参考，不能替代专业医生诊断！</strong></p>
+                <p>如果您发现任何异常症状，请及时就医进行专业检查。早期发现和治疗是提高乳腺癌治愈率的关键。</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .info-section h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+    .info-section p {
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 10px;
+    }
+    .info-section ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .info-section li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        color: #555;
+    }
+    .info-section li:last-child {
+        border-bottom: none;
+    }
+    .method-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 4px solid #667eea;
+    }
+    .method-card h4 {
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .method-card p {
+        font-size: 14px;
+        color: #666;
+    }
+    .warning-box {
+        background: #fff3e0;
+        border-left: 4px solid #ff9800;
+        padding: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .warning-box p {
+        margin: 5px 0;
+        color: #5d4037;
+    }
+</style>
+{% endblock %}

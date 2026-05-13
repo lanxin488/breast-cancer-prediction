@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}健康档案 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📋 健康档案</h2>
+        
+        {% if health_record %}
+            <div id="record-view">
+                <div class="record-section">
+                    <h3>基本健康信息</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="number" id="age" value="{{ health_record.age or '' }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>BMI指数</label>
+                            <input type="number" step="0.1" id="bmi" value="{{ health_record.bmi or '' }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>月经初潮年龄</label>
+                            <input type="number" id="menarche_age" value="{{ health_record.menarche_age or '' }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>绝经年龄</label>
+                            <input type="number" id="menopause_age" value="{{ health_record.menopause_age or '' }}" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h3>健康史</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="family_history" {{ 'checked' if health_record.family_history else '' }} disabled>
+                            <span>有乳腺癌家族史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="breast_feeding" {{ 'checked' if health_record.breast_feeding else '' }} disabled>
+                            <span>有母乳喂养史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="hormone_therapy" {{ 'checked' if health_record.hormone_therapy else '' }} disabled>
+                            <span>接受过激素治疗</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="previous_cancer" {{ 'checked' if health_record.previous_cancer else '' }} disabled>
+                            <span>有癌症病史</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h3>筛查史</h3>
+                    <textarea id="screening_history" disabled>{{ health_record.screening_history or '' }}</textarea>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button onclick="toggleEdit()" class="btn btn-primary">✏️ 编辑档案</button>
+                    <button onclick="deleteRecord()" class="btn btn-danger" style="margin-left: 10px;">🗑️ 删除档案</button>
+                </div>
+            </div>
+
+            <div id="record-edit" style="display: none;">
+                <div class="record-section">
+                    <h3>基本健康信息</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="number" id="edit-age" value="{{ health_record.age or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>BMI指数</label>
+                            <input type="number" step="0.1" id="edit-bmi" value="{{ health_record.bmi or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>月经初潮年龄</label>
+                            <input type="number" id="edit-menarche" value="{{ health_record.menarche_age or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>绝经年龄</label>
+                            <input type="number" id="edit-menopause" value="{{ health_record.menopause_age or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h3>健康史</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="edit-family" {{ 'checked' if health_record.family_history else '' }}>
+                            <span>有乳腺癌家族史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="edit-breast" {{ 'checked' if health_record.breast_feeding else '' }}>
+                            <span>有母乳喂养史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="edit-hormone" {{ 'checked' if health_record.hormone_therapy else '' }}>
+                            <span>接受过激素治疗</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="edit-cancer" {{ 'checked' if health_record.previous_cancer else '' }}>
+                            <span>有癌症病史</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h3>筛查史</h3>
+                    <textarea id="edit-screening">{{ health_record.screening_history or '' }}</textarea>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button onclick="saveRecord()" class="btn btn-primary">💾 保存修改</button>
+                    <button onclick="toggleEdit()" class="btn btn-secondary" style="margin-left: 10px;">❌ 取消</button>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>暂无健康档案</p>
+                <button onclick="showCreateForm()" class="btn btn-primary" style="margin-top: 20px;">📝 创建健康档案</button>
+            </div>
+
+            <div id="create-form" style="display: none;">
+                <h3>创建健康档案</h3>
+                <div class="record-section">
+                    <h4>基本健康信息</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="number" id="create-age">
+                        </div>
+                        <div class="form-group">
+                            <label>BMI指数</label>
+                            <input type="number" step="0.1" id="create-bmi">
+                        </div>
+                        <div class="form-group">
+                            <label>月经初潮年龄</label>
+                            <input type="number" id="create-menarche">
+                        </div>
+                        <div class="form-group">
+                            <label>绝经年龄</label>
+                            <input type="number" id="create-menopause">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h4>健康史</h4>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="create-family">
+                            <span>有乳腺癌家族史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="create-breast">
+                            <span>有母乳喂养史</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="create-hormone">
+                            <span>接受过激素治疗</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="create-cancer">
+                            <span>有癌症病史</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="record-section">
+                    <h4>筛查史</h4>
+                    <textarea id="create-screening" placeholder="请输入您的乳腺筛查历史..."></textarea>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button onclick="createRecord()" class="btn btn-primary">💾 创建档案</button>
+                    <button onclick="showCreateForm()" class="btn btn-secondary" style="margin-left: 10px;">❌ 取消</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>📈 我的预测记录</h3>
+        {% if predictions %}
+            <table>
+                <thead>
+                    <tr><th>日期</th><th>结果</th><th>置信度</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr>
+                        <td>{{ pred.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><span class="status-badge {% if pred.result == '良性' %}status-benign{% else %}status-malignant{% endif %}">{{ pred.result }}</span></td>
+                        <td>{{ (pred.confidence * 100)|round(2) }}%</td>
+                        <td><button onclick="window.location.href='/api/export-report/{{ pred.id }}'" class="btn btn-info">📥 导出报告</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">暂无预测记录</div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showCreateForm() {
+    document.querySelector('.empty-state').style.display = 'none';
+    document.getElementById('create-form').style.display = 'block';
+}
+
+async function createRecord() {
+    const data = {
+        age: parseInt(document.getElementById('create-age').value) || null,
+        bmi: parseFloat(document.getElementById('create-bmi').value) || null,
+        family_history: document.getElementById('create-family').checked,
+        menarche_age: parseInt(document.getElementById('create-menarche').value) || null,
+        menopause_age: parseInt(document.getElementById('create-menopause').value) || null,
+        breast_feeding: document.getElementById('create-breast').checked,
+        hormone_therapy: document.getElementById('create-hormone').checked,
+        previous_cancer: document.getElementById('create-cancer').checked,
+        screening_history: document.getElementById('create-screening').value
+    };
+
+    const response = await fetch('/api/health-record', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        alert('健康档案创建成功');
+        window.location.reload();
+    } else {
+        alert('创建失败：' + result.message);
+    }
+}
+
+function toggleEdit() {
+    document.getElementById('record-view').style.display = document.getElementById('record-view').style.display === 'none' ? 'block' : 'none';
+    document.getElementById('record-edit').style.display = document.getElementById('record-edit').style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveRecord() {
+    const data = {
+        age: parseInt(document.getElementById('edit-age').value) || null,
+        bmi: parseFloat(document.getElementById('edit-bmi').value) || null,
+        family_history: document.getElementById('edit-family').checked,
+        menarche_age: parseInt(document.getElementById('edit-menarche').value) || null,
+        menopause_age: parseInt(document.getElementById('edit-menopause').value) || null,
+        breast_feeding: document.getElementById('edit-breast').checked,
+        hormone_therapy: document.getElementById('edit-hormone').checked,
+        previous_cancer: document.getElementById('edit-cancer').checked,
+        screening_history: document.getElementById('edit-screening').value
+    };
+
+    const response = await fetch('/api/health-record', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        alert('健康档案更新成功');
+        window.location.reload();
+    } else {
+        alert('更新失败：' + result.message);
+    }
+}
+
+function deleteRecord() {
+    if (!confirm('确定要删除健康档案吗？')) {
+        return;
+    }
+
+    fetch('/api/health-record', {
+        method: 'DELETE'
+    }).then(res => res.json()).then(data => {
+        if (data.success) {
+            alert('健康档案已删除');
+            window.location.reload();
+        } else {
+            alert('删除失败：' + data.message);
+        }
+    });
+}
+</script>
+<style>
+    .record-section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .record-section h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        resize: vertical;
+    }
+    textarea:disabled {
+        background: #f8f9fa;
+        color: #666;
+    }
+</style>
+{% endblock %}

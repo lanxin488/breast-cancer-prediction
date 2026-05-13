@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}模型更新日志 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📊 模型更新日志</h2>
+        
+        <div class="update-section">
+            <div class="update-header">
+                <div class="update-date">
+                    <span class="date-icon">📅</span>
+                    <span>2024年12月</span>
+                </div>
+                <div class="update-version">版本 v1.0.0</div>
+            </div>
+            <div class="update-content">
+                <h3>🌟 首次发布</h3>
+                <div class="update-item">
+                    <span class="item-icon">✅</span>
+                    <div class="item-content">
+                        <span class="item-title">模型训练</span>
+                        <span class="item-desc">基于威斯康星乳腺癌数据集训练随机森林和逻辑回归模型</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">✅</span>
+                    <div class="item-content">
+                        <span class="item-title">数据预处理</span>
+                        <span class="item-desc">使用StandardScaler对特征进行标准化处理</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">✅</span>
+                    <div class="item-content">
+                        <span class="item-title">模型评估</span>
+                        <span class="item-desc">采用8:2训练测试划分，使用交叉验证确保模型泛化能力</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">✅</span>
+                    <div class="item-content">
+                        <span class="item-title">性能指标</span>
+                        <span class="item-desc">随机森林准确率96.5%，逻辑回归准确率95.6%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="update-section">
+            <div class="update-header">
+                <div class="update-date">
+                    <span class="date-icon">📅</span>
+                    <span>2024年11月</span>
+                </div>
+                <div class="update-version">版本 v0.9.0 (测试版)</div>
+            </div>
+            <div class="update-content">
+                <h3>🔧 模型优化</h3>
+                <div class="update-item">
+                    <span class="item-icon">🔄</span>
+                    <div class="item-content">
+                        <span class="item-title">算法对比</span>
+                        <span class="item-desc">完成随机森林、逻辑回归、SVM等多种算法对比实验</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">🔄</span>
+                    <div class="item-content">
+                        <span class="item-title">参数调优</span>
+                        <span class="item-desc">使用网格搜索优化模型超参数</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">🔄</span>
+                    <div class="item-content">
+                        <span class="item-title">特征选择</span>
+                        <span class="item-desc">分析特征重要性，确定关键影响因素</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="update-section">
+            <div class="update-header">
+                <div class="update-date">
+                    <span class="date-icon">📅</span>
+                    <span>2024年10月</span>
+                </div>
+                <div class="update-version">版本 v0.8.0 (开发版)</div>
+            </div>
+            <div class="update-content">
+                <h3>📁 数据准备</h3>
+                <div class="update-item">
+                    <span class="item-icon">📥</span>
+                    <div class="item-content">
+                        <span class="item-title">数据集获取</span>
+                        <span class="item-desc">从UCI机器学习仓库获取威斯康星乳腺癌数据集</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">📥</span>
+                    <div class="item-content">
+                        <span class="item-title">数据清洗</span>
+                        <span class="item-desc">处理缺失值，去除异常样本</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <span class="item-icon">📥</span>
+                    <div class="item-content">
+                        <span class="item-title">特征分析</span>
+                        <span class="item-desc">探索性数据分析，了解特征分布和相关性</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-info">
+            <h3>📋 数据集信息</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="info-value">569</span>
+                    <span class="info-label">样本总数</span>
+                </div>
+                <div class="info-card">
+                    <span class="info-value">30</span>
+                    <span class="info-label">特征数量</span>
+                </div>
+                <div class="info-card">
+                    <span class="info-value">357</span>
+                    <span class="info-label">良性样本</span>
+                </div>
+                <div class="info-card">
+                    <span class="info-value">212</span>
+                    <span class="info-label">恶性样本</span>
+                </div>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-top: 15px;">
+                <strong>数据来源：</strong>UCI机器学习仓库 - Wisconsin Breast Cancer Dataset (Diagnostic)
+            </p>
+            <p style="color: #666; font-size: 14px;">
+                <strong>数据提供者：</strong>Dr. William H. Wolberg, University of Wisconsin Hospitals, Madison
+            </p>
+        </div>
+
+        <div class="performance-summary">
+            <h3>📈 当前模型性能</h3>
+            <div class="perf-grid">
+                <div class="perf-item">
+                    <div class="perf-header">🌲 随机森林</div>
+                    <div class="perf-metrics">
+                        <div class="metric">准确率: <span>96.5%</span></div>
+                        <div class="metric">精确率: <span>96.2%</span></div>
+                        <div class="metric">召回率: <span>97.0%</span></div>
+                        <div class="metric">AUC: <span>99.2%</span></div>
+                    </div>
+                </div>
+                <div class="perf-item">
+                    <div class="perf-header">📈 逻辑回归</div>
+                    <div class="perf-metrics">
+                        <div class="metric">准确率: <span>95.6%</span></div>
+                        <div class="metric">精确率: <span>95.3%</span></div>
+                        <div class="metric">召回率: <span>96.1%</span></div>
+                        <div class="metric">AUC: <span>99.0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .update-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .update-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: #667eea;
+        color: white;
+    }
+    .update-date {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .date-icon {
+        font-size: 18px;
+    }
+    .update-version {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 13px;
+    }
+    .update-content {
+        padding: 20px;
+    }
+    .update-content h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .update-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .item-icon {
+        font-size: 16px;
+        margin-top: 2px;
+    }
+    .item-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .item-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    .item-desc {
+        color: #666;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+    .data-info {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .data-info h3 {
+        color: #1976D2;
+        margin-bottom: 15px;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .info-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .info-value {
+        display: block;
+        font-size: 28px;
+        font-weight: bold;
+        color: #667eea;
+    }
+    .info-label {
+        font-size: 12px;
+        color: #666;
+    }
+    .performance-summary {
+        background: #e8f5e9;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .performance-summary h3 {
+        color: #388E3C;
+        margin-bottom: 15px;
+    }
+    .perf-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .perf-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .perf-header {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .perf-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .metric {
+        font-size: 13px;
+        color: #666;
+    }
+    .metric span {
+        font-weight: 600;
+        color: #667eea;
+    }
+    .future-plans {
+        background: #fff3e0;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .future-plans h3 {
+        color: #F57C00;
+        margin-bottom: 15px;
+    }
+    .plan-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .plan-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #666;
+        font-size: 14px;
+    }
+    .plan-icon {
+        color: #F57C00;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card" style="text-align: center; padding: 60px 40px;">
+        <h1 style="font-size: 36px; color: #667eea; margin-bottom: 20px;">🎗️ 乳腺癌预测系统</h1>
+        <p style="font-size: 18px; color: #666; margin-bottom: 30px;">基于机器学习的智能乳腺癌预测平台</p>
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            {% if current_user.is_authenticated %}
+                <a href="/predict" class="btn btn-primary">开始预测</a>
+                <a href="/history" class="btn btn-secondary">查看历史</a>
+            {% else %}
+                <a href="/login" class="btn btn-primary">登录系统</a>
+                <a href="/register" class="btn btn-secondary">注册账号</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number" style="color: #4CAF50;">569</div>
+            <div class="label">训练样本数</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" style="color: #2196F3;">30</div>
+            <div class="label">特征维度</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" style="color: #FF9800;">97%</div>
+            <div class="label">预测准确率</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" style="color: #9C27B0;">2</div>
+            <div class="label">预测模型</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>系统功能</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🔐 用户认证</h3>
+                <p style="color: #666; font-size: 14px;">安全的用户注册与登录系统，保护您的隐私数据</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🎯 智能预测</h3>
+                <p style="color: #666; font-size: 14px;">基于随机森林和逻辑回归的精准预测</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">📊 结果分析</h3>
+                <p style="color: #666; font-size: 14px;">详细的预测结果分析和特征重要性展示</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🤖 AI助手</h3>
+                <p style="color: #666; font-size: 14px;">基于知识库的健康咨询服务</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>重要声明</h2>
+        <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border-left: 4px solid #ffc107;">
+            <p style="color: #856404; font-weight: 500;">⚠️ 本系统仅供学习研究使用，不替代专业医生的诊断！</p>
+            <p style="color: #856404; font-size: 14px; margin-top: 10px;">如有身体不适，请及时就医。模型准确率虽高，但仍存在误判可能。</p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}数据可视化 - 乳腺癌预测系统{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>📈 数据可视化</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" style="color: #4CAF50;">{{ benign_count }}</div>
+                <div class="label">良性样本</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" style="color: #F44336;">{{ malignant_count }}</div>
+                <div class="label">恶性样本</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" style="color: #667eea;">{{ benign_count + malignant_count }}</div>
+                <div class="label">总样本数</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" style="color: #FF9800;">{{ ((malignant_count / (benign_count + malignant_count)) * 100)|round(1) }}%</div>
+                <div class="label">恶性比例</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>📊 数据集分布</h3>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">良性</span>
+                            <span style="color: #4CAF50; font-weight: 500;">{{ benign_count }}</span>
+                        </div>
+                        <div style="height: 30px; background: #eee; border-radius: 15px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #81c784); width: {{ (benign_count / (benign_count + malignant_count)) * 100 }}%; border-radius: 15px;"></div>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">恶性</span>
+                            <span style="color: #F44336; font-weight: 500;">{{ malignant_count }}</span>
+                        </div>
+                        <div style="height: 30px; background: #eee; border-radius: 15px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #F44336, #ff6b6b); width: {{ (malignant_count / (benign_count + malignant_count)) * 100 }}%; border-radius: 15px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>📋 特征分类</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">📊 Mean 特征</h4>
+                    <p style="color: #666; font-size: 14px;">10个平均值特征，描述细胞的基本形态</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">📈 SE 特征</h4>
+                    <p style="color: #666; font-size: 14px;">10个标准误差特征，描述数据的离散程度</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">⚠️ Worst 特征</h4>
+                    <p style="color: #666; font-size: 14px;">10个最差值特征，描述最异常的细胞</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
