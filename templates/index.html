@@ -2,67 +2,425 @@
 
 {% block title %}乳腺癌预测系统{% endblock %}
 
+{% block extra_css %}
+<style>
+    .video-section {
+        margin: 30px 0;
+    }
+    .video-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    .video-container video, .video-container iframe {
+        width: 100%;
+        display: block;
+    }
+    .video-container iframe {
+        aspect-ratio: 16/9;
+    }
+    .video-info {
+        text-align: center;
+        margin-top: 15px;
+    }
+    .video-info h3 {
+        color: #667eea;
+        margin-bottom: 8px;
+    }
+    .video-info p {
+        color: #666;
+        font-size: 14px;
+    }
+    .tts-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s;
+        margin-left: 10px;
+    }
+    .tts-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .tts-btn.playing {
+        background: linear-gradient(135deg, #F44336, #ff6b6b);
+    }
+    .feature-card {
+        position: relative;
+    }
+    .feature-card .tts-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+    .video-options {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .video-option-btn {
+        padding: 10px 20px;
+        background: #f0f0f0;
+        border: 2px solid #ddd;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    .video-option-btn:hover {
+        background: #e0e0e0;
+    }
+    .video-option-btn.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-color: #667eea;
+    }
+    .video-player-box {
+        display: none;
+    }
+    .video-player-box.active {
+        display: block;
+    }
+    .backup-videos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .backup-video-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s;
+    }
+    .backup-video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    .backup-video-card h4 {
+        color: white;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+    .backup-video-card p {
+        color: rgba(255,255,255,0.8);
+        font-size: 13px;
+        margin: 0;
+    }
+    .video-note {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 13px;
+        color: #888;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .local-video-hint {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-size: 13px;
+        color: #1565c0;
+        border-left: 4px solid #1976d2;
+    }
+    .ai-demo-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        border-radius: 15px;
+        color: white;
+        margin-top: 20px;
+    }
+    .ai-demo-section h3 {
+        color: white;
+        margin-bottom: 15px;
+        font-size: 20px;
+    }
+    .ai-demo-section p {
+        color: rgba(255,255,255,0.9);
+        font-size: 14px;
+        line-height: 1.8;
+    }
+    .ai-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .ai-feature-item {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .ai-feature-item .emoji {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+    .ai-feature-item h4 {
+        color: white;
+        margin-bottom: 5px;
+        font-size: 15px;
+    }
+    .ai-feature-item p {
+        color: rgba(255,255,255,0.8);
+        font-size: 12px;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="card" style="text-align: center; padding: 60px 40px;">
-        <h1 style="font-size: 36px; color: #667eea; margin-bottom: 20px;">🎗️ 乳腺癌预测系统</h1>
-        <p style="font-size: 18px; color: #666; margin-bottom: 30px;">基于机器学习的智能乳腺癌预测平台</p>
+        <h1 style="font-size: 36px; color: #667eea; margin-bottom: 20px;">
+            🎗️ <span data-i18n="hero_title">乳腺癌预测系统</span>
+        </h1>
+        <p style="font-size: 18px; color: #666; margin-bottom: 30px;" data-i18n="hero_subtitle">基于机器学习的智能乳腺癌预测平台</p>
         <div style="display: flex; justify-content: center; gap: 20px;">
             {% if current_user.is_authenticated %}
-                <a href="/predict" class="btn btn-primary">开始预测</a>
-                <a href="/history" class="btn btn-secondary">查看历史</a>
+                <a href="/predict" class="btn btn-primary" data-i18n="btn_predict">开始预测</a>
+                <a href="/history" class="btn btn-secondary" data-i18n="btn_history">查看历史</a>
             {% else %}
-                <a href="/login" class="btn btn-primary">登录系统</a>
-                <a href="/register" class="btn btn-secondary">注册账号</a>
+                <a href="/login" class="btn btn-primary" data-i18n="btn_login">登录系统</a>
+                <a href="/register" class="btn btn-secondary" data-i18n="btn_register">注册账号</a>
             {% endif %}
+        </div>
+    </div>
+
+    <div class="card video-section">
+        <h2 style="text-align: center; margin-bottom: 25px;">
+            🎬 <span data-i18n="video_title">乳腺癌科普介绍</span>
+            <button class="tts-btn" onclick="readText('video_title,video_desc')">🔊 <span data-i18n="btn_tts">语音播放</span></button>
+        </h2>
+        
+        <div class="video-options">
+            <button class="video-option-btn active" onclick="showVideoPlayer('local')">📁 本地视频</button>
+            <button class="video-option-btn" onclick="showVideoPlayer('bilibili')">📺 B站视频</button>
+            <button class="video-option-btn" onclick="showVideoPlayer('xigua')">🍉 西瓜视频</button>
+            <button class="video-option-btn" onclick="showVideoPlayer('douyin')">🎵 抖音视频</button>
+        </div>
+
+        <div id="video-local" class="video-player-box active">
+            <div class="video-container">
+                <video id="localVideo" controls preload="metadata" poster="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800">
+                    <source src="/static/videos/breast_cancer.mp4" type="video/mp4">
+                    <source src="/static/videos/breast_cancer.webm" type="video/webm">
+                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
+            </div>
+            <div class="local-video-hint">
+                <strong>💡 如何添加自己的视频：</strong><br>
+                1. 在B站/抖音/西瓜视频搜索「乳腺癌科普」下载视频<br>
+                2. 将视频重命名为 <code>breast_cancer.mp4</code><br>
+                3. 放到项目文件夹：<code>static/videos/</code><br>
+                4. 刷新页面即可播放您的视频
+            </div>
+        </div>
+
+        <div id="video-bilibili" class="video-player-box">
+            <div class="video-container">
+                <iframe 
+                    src="//player.bilibili.com/player.html?bvid=BV1p54y1z7B8&page=1&high_quality=1" 
+                    scrolling="no" 
+                    border="0" 
+                    frameborder="no" 
+                    framespacing="0" 
+                    allowfullscreen="true">
+                </iframe>
+            </div>
+            <div class="local-video-hint">
+                <strong>📺 B站视频：</strong><br>
+                如无法播放，请在B站搜索「乳腺癌科普」或「乳腺健康」查看更多视频
+            </div>
+        </div>
+
+        <div id="video-xigua" class="video-player-box">
+            <div class="video-container" style="height: 450px;">
+                <iframe 
+                    src="https://www.ixigua.com/" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%;"
+                    allowfullscreen="true">
+                </iframe>
+            </div>
+            <div class="local-video-hint">
+                <strong>🍉 西瓜视频：</strong><br>
+                访问西瓜视频网站，搜索「乳腺癌科普」查看相关视频
+            </div>
+        </div>
+
+        <div id="video-douyin" class="video-player-box">
+            <div class="video-container" style="height: 600px; max-width: 400px;">
+                <iframe 
+                    src="https://www.douyin.com/" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%; border-radius: 15px;"
+                    allowfullscreen="true">
+                </iframe>
+            </div>
+            <div class="local-video-hint">
+                <strong>🎵 抖音视频：</strong><br>
+                访问抖音网页版，搜索「乳腺癌科普」查看短视频
+            </div>
+        </div>
+
+        <div class="video-info">
+            <h3 data-i18n="video_title_detail">乳腺癌预防与早期筛查</h3>
+            <p data-i18n="video_desc">了解乳腺癌的早期症状、预防方法和筛查建议，关爱乳腺健康从了解开始。</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="ai-demo-section">
+            <h3>🤖 AI智能能力展示</h3>
+            <p>本系统集成了多种AI技术，为您提供全方位的健康管理服务。以下是系统支持的AI功能演示：</p>
+            
+            <div class="ai-features">
+                <div class="ai-feature-item">
+                    <div class="emoji">📝</div>
+                    <h4>文本生成</h4>
+                    <p>AI健康咨询助手，智能回答您的健康问题</p>
+                </div>
+                <div class="ai-feature-item">
+                    <div class="emoji">🎨</div>
+                    <h4>字生图</h4>
+                    <p>基于文本描述生成医学相关示意图</p>
+                </div>
+                <div class="ai-feature-item">
+                    <div class="emoji">🎬</div>
+                    <h4>图生视频</h4>
+                    <p>医学图像转动态演示视频</p>
+                </div>
+                <div class="ai-feature-item">
+                    <div class="emoji">🔍</div>
+                    <h4>智能预测</h4>
+                    <p>基于机器学习的乳腺癌风险预测</p>
+                </div>
+                <div class="ai-feature-item">
+                    <div class="emoji">📊</div>
+                    <h4>数据分析</h4>
+                    <p>预测结果可视化和趋势分析</p>
+                </div>
+                <div class="ai-feature-item">
+                    <div class="emoji">🔊</div>
+                    <h4>语音播放</h4>
+                    <p>网页内容语音朗读，方便阅读</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 20px;">📺 乳腺癌科普资源</h2>
+        <div class="backup-videos">
+            <a href="https://www.bilibili.com/" target="_blank" class="backup-video-card">
+                <h4>📺 哔哩哔哩</h4>
+                <p>搜索「乳腺癌科普」查看专业科普视频</p>
+            </a>
+            <a href="https://www.douyin.com/" target="_blank" class="backup-video-card">
+                <h4>🎵 抖音</h4>
+                <p>搜索乳腺癌相关科普短视频</p>
+            </a>
+            <a href="https://www.ixigua.com/" target="_blank" class="backup-video-card">
+                <h4>🍉 西瓜视频</h4>
+                <p>中视频平台，丰富的健康科普内容</p>
+            </a>
+            <a href="https://www.nhc.gov.cn/" target="_blank" class="backup-video-card">
+                <h4>🏥 国家卫健委</h4>
+                <p>官方健康资讯和科普资源</p>
+            </a>
+            <a href="https://www.caca.org.cn/" target="_blank" class="backup-video-card">
+                <h4>💡 中国抗癌协会</h4>
+                <p>专业抗癌知识和科普资源</p>
+            </a>
+            <a href="https://www.shca.org.cn/" target="_blank" class="backup-video-card">
+                <h4>🏥 复旦大学肿瘤医院</h4>
+                <p>权威肿瘤专科医院资源</p>
+            </a>
         </div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="number" style="color: #4CAF50;">569</div>
-            <div class="label">训练样本数</div>
+            <div class="label" data-i18n="stat_samples">训练样本数</div>
         </div>
         <div class="stat-card">
             <div class="number" style="color: #2196F3;">30</div>
-            <div class="label">特征维度</div>
+            <div class="label" data-i18n="stat_features">特征维度</div>
         </div>
         <div class="stat-card">
             <div class="number" style="color: #FF9800;">97%</div>
-            <div class="label">预测准确率</div>
+            <div class="label" data-i18n="stat_accuracy">预测准确率</div>
         </div>
         <div class="stat-card">
             <div class="number" style="color: #9C27B0;">2</div>
-            <div class="label">预测模型</div>
+            <div class="label" data-i18n="stat_models">预测模型</div>
         </div>
     </div>
 
     <div class="card">
-        <h2>系统功能</h2>
+        <h2 data-i18n="features_title">系统功能</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h3 style="color: #667eea; margin-bottom: 10px;">🔐 用户认证</h3>
-                <p style="color: #666; font-size: 14px;">安全的用户注册与登录系统，保护您的隐私数据</p>
+            <div class="feature-card" style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🔐 <span data-i18n="feature1_title">用户认证</span></h3>
+                <p style="color: #666; font-size: 14px;" data-i18n="feature1_desc">安全的用户注册与登录系统，保护您的隐私数据</p>
             </div>
-            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h3 style="color: #667eea; margin-bottom: 10px;">🎯 智能预测</h3>
-                <p style="color: #666; font-size: 14px;">基于随机森林和逻辑回归的精准预测</p>
+            <div class="feature-card" style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🎯 <span data-i18n="feature2_title">智能预测</span></h3>
+                <p style="color: #666; font-size: 14px;" data-i18n="feature2_desc">基于随机森林和逻辑回归的精准预测</p>
             </div>
-            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h3 style="color: #667eea; margin-bottom: 10px;">📊 结果分析</h3>
-                <p style="color: #666; font-size: 14px;">详细的预测结果分析和特征重要性展示</p>
+            <div class="feature-card" style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">📊 <span data-i18n="feature3_title">结果分析</span></h3>
+                <p style="color: #666; font-size: 14px;" data-i18n="feature3_desc">详细的预测结果分析和特征重要性展示</p>
             </div>
-            <div style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h3 style="color: #667eea; margin-bottom: 10px;">🤖 AI助手</h3>
-                <p style="color: #666; font-size: 14px;">基于知识库的健康咨询服务</p>
+            <div class="feature-card" style="padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">🤖 <span data-i18n="feature4_title">AI助手</span></h3>
+                <p style="color: #666; font-size: 14px;" data-i18n="feature4_desc">基于知识库的健康咨询服务</p>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h2>重要声明</h2>
+        <h2 data-i18n="disclaimer_title">重要声明</h2>
         <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border-left: 4px solid #ffc107;">
-            <p style="color: #856404; font-weight: 500;">⚠️ 本系统仅供学习研究使用，不替代专业医生的诊断！</p>
-            <p style="color: #856404; font-size: 14px; margin-top: 10px;">如有身体不适，请及时就医。模型准确率虽高，但仍存在误判可能。</p>
+            <p style="color: #856404; font-weight: 500;" data-i18n="disclaimer1">⚠️ 本系统仅供学习研究使用，不替代专业医生的诊断！</p>
+            <p style="color: #856404; font-size: 14px; margin-top: 10px;" data-i18n="disclaimer2">如有身体不适，请及时就医。模型准确率虽高，但仍存在误判可能。</p>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showVideoPlayer(type) {
+        var players = document.querySelectorAll('.video-player-box');
+        players.forEach(function(p) {
+            p.classList.remove('active');
+        });
+        
+        var btns = document.querySelectorAll('.video-option-btn');
+        btns.forEach(function(b) {
+            b.classList.remove('active');
+        });
+        
+        document.getElementById('video-' + type).classList.add('active');
+        event.target.classList.add('active');
+    }
+</script>
 {% endblock %}

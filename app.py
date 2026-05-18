@@ -345,9 +345,13 @@ def prediction_report():
     malignant_count = len([p for p in predictions if p.result == '恶性'])
     avg_confidence = sum([p.confidence for p in predictions]) / total if total > 0 else 0
     
+    dates = [p.created_at.strftime('%m-%d %H:%M') for p in predictions]
+    malignant_probs = [round(p.malignant_prob, 2) for p in predictions]
+    
     return render_template('prediction_report.html', predictions=predictions,
                          total=total, benign_count=benign_count,
-                         malignant_count=malignant_count, avg_confidence=round(avg_confidence, 2))
+                         malignant_count=malignant_count, avg_confidence=round(avg_confidence, 2),
+                         dates=dates, malignant_probs=malignant_probs)
 
 @app.route('/prediction/<int:prediction_id>')
 @login_required
@@ -392,6 +396,150 @@ def export_prediction(prediction_id):
     buffer.seek(0)
     
     return send_file(buffer, as_attachment=True, download_name=f'prediction_report_{prediction_id}.pdf', mimetype='application/pdf')
+
+@app.route('/api/export-report/<int:prediction_id>')
+@login_required
+def api_export_report(prediction_id):
+    prediction = Prediction.query.get_or_404(prediction_id)
+    
+    if prediction.user_id != current_user.id and not current_user.is_admin():
+        return jsonify({'success': False, 'message': '无权访问此预测记录'}), 403
+    
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    story.append(Paragraph('🎗️ 乳腺癌预测报告', styles['Title']))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f'预测日期: {prediction.created_at.strftime("%Y-%m-%d %H:%M:%S")}', styles['Normal']))
+    story.append(Paragraph(f'预测结果: <b>{prediction.result}</b>', styles['Heading2']))
+    story.append(Paragraph(f'置信度: {prediction.confidence:.2f}%', styles['Normal']))
+    story.append(Paragraph(f'恶性概率: {prediction.malignant_prob:.2f}%', styles['Normal']))
+    story.append(Paragraph(f'良性概率: {prediction.benign_prob:.2f}%', styles['Normal']))
+    story.append(Paragraph(f'风险等级: {prediction.risk_level}', styles['Normal']))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph('📋 健康建议:', styles['Heading2']))
+    story.append(Paragraph(get_health_advice(prediction), styles['Normal']))
+    
+    doc.build(story)
+    buffer.seek(0)
+    
+    return send_file(buffer, as_attachment=True, download_name=f'prediction_report_{prediction_id}.pdf', mimetype='application/pdf')
+
+@app.route('/api/export-all-reports')
+@login_required
+def api_export_all_reports():
+    predictions = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.desc()).all()
+    
+    if not predictions:
+        return jsonify({'success': False, 'message': '暂无预测记录'}), 400
+    
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    story.append(Paragraph('🎗️ 乳腺癌预测报告汇总', styles['Title']))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f'生成日期: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', styles['Normal']))
+    story.append(Paragraph(f'总预测次数: {len(predictions)}', styles['Normal']))
+    benign_count = len([p for p in predictions if p.result == '良性'])
+    malignant_count = len([p for p in predictions if p.result == '恶性'])
+    story.append(Paragraph(f'良性结果: {benign_count}', styles['Normal']))
+    story.append(Paragraph(f'恶性结果: {malignant_count}', styles['Normal']))
+    story.append(Spacer(1, 15))
+    
+    story.append(Paragraph('📊 预测记录详情:', styles['Heading2']))
+    
+    table_data = [['序号', '日期', '结果', '置信度', '恶性概率', '良性概率']]
+    for i, pred in enumerate(predictions, 1):
+        table_data.append([
+            str(i),
+            pred.created_at.strftime('%Y-%m-%d %H:%M'),
+            pred.result,
+            f'{pred.confidence:.2f}%',
+            f'{pred.malignant_prob:.2f}%',
+            f'{pred.benign_prob:.2f}%'
+        ])
+    
+    table = Table(table_data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(table)
+    story.append(Spacer(1, 15))
+    
+    story.append(Paragraph('⚠️ 免责声明:', styles['Heading2']))
+    story.append(Paragraph('本报告仅供参考，不能替代专业医生诊断。如有健康疑虑，请务必咨询专业医生。', styles['Normal']))
+    
+    doc.build(story)
+    buffer.seek(0)
+    
+    return send_file(buffer, as_attachment=True, download_name='all_prediction_reports.pdf', mimetype='application/pdf')
+
+@app.route('/api/admin/export-users')
+@login_required
+def admin_export_users():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'message': '无权操作'}), 403
+    
+    users = User.query.all()
+    output = BytesIO()
+    
+    df = pd.DataFrame([{
+        'ID': user.id,
+        '用户名': user.username,
+        '邮箱': user.email,
+        '角色': user.role,
+        '注册日期': user.created_at.strftime('%Y-%m-%d %H:%M')
+    } for user in users])
+    
+    df.to_csv(output, index=False, encoding='utf-8-sig')
+    output.seek(0)
+    
+    return send_file(output, as_attachment=True, download_name='users.csv', mimetype='text/csv')
+
+@app.route('/api/admin/export-predictions')
+@login_required
+def admin_export_predictions():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'message': '无权操作'}), 403
+    
+    predictions = Prediction.query.all()
+    output = BytesIO()
+    
+    df = pd.DataFrame([{
+        'ID': pred.id,
+        '用户ID': pred.user_id,
+        '结果': pred.result,
+        '置信度': pred.confidence,
+        '恶性概率': pred.malignant_prob,
+        '良性概率': pred.benign_prob,
+        '风险等级': pred.risk_level,
+        '预测日期': pred.created_at.strftime('%Y-%m-%d %H:%M')
+    } for pred in predictions])
+    
+    df.to_csv(output, index=False, encoding='utf-8-sig')
+    output.seek(0)
+    
+    return send_file(output, as_attachment=True, download_name='predictions.csv', mimetype='text/csv')
 
 def get_health_advice(prediction):
     advice = []
@@ -527,7 +675,53 @@ def health_info():
 def model_performance():
     metrics = breast_cancer_model.get_model_metrics()
     feature_importance = breast_cancer_model.get_feature_importance(10)
-    return render_template('model_performance.html', metrics=metrics, feature_importance=feature_importance)
+    feature_names = [item[0] for item in feature_importance]
+    feature_importance_values = [item[1] for item in feature_importance]
+    return render_template('model_performance.html', 
+                         metrics=metrics, 
+                         feature_importance=feature_importance,
+                         feature_names=feature_names,
+                         feature_importance_values=feature_importance_values)
+
+@app.route('/model-comparison')
+def model_comparison():
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+    
+    data = load_breast_cancer()
+    X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=42)
+    
+    rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_model.fit(X_train, y_train)
+    rf_pred = rf_model.predict(X_test)
+    rf_pred_proba = rf_model.predict_proba(X_test)[:, 1]
+    
+    lr_model = LogisticRegression(max_iter=1000, random_state=42)
+    lr_model.fit(X_train, y_train)
+    lr_pred = lr_model.predict(X_test)
+    lr_pred_proba = lr_model.predict_proba(X_test)[:, 1]
+    
+    metrics = {
+        'Random Forest': {
+            'accuracy': accuracy_score(y_test, rf_pred),
+            'precision': precision_score(y_test, rf_pred),
+            'recall': recall_score(y_test, rf_pred),
+            'f1': f1_score(y_test, rf_pred),
+            'roc_auc': roc_auc_score(y_test, rf_pred_proba)
+        },
+        'Logistic Regression': {
+            'accuracy': accuracy_score(y_test, lr_pred),
+            'precision': precision_score(y_test, lr_pred),
+            'recall': recall_score(y_test, lr_pred),
+            'f1': f1_score(y_test, lr_pred),
+            'roc_auc': roc_auc_score(y_test, lr_pred_proba)
+        }
+    }
+    
+    return render_template('model_comparison.html', metrics=metrics)
 
 @app.route('/faq')
 def faq():

@@ -9,74 +9,53 @@
         <div class="performance-section">
             <h3>模型评估指标</h3>
             
-            {% for model_name, metrics in metrics.items() %}
-            <div class="model-card">
-                <h4>{{ model_name }}</h4>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <div class="metric-value">{{ (metrics.accuracy * 100)|round(2) }}%</div>
-                        <div class="metric-label">准确率</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-value">{{ (metrics.precision * 100)|round(2) }}%</div>
-                        <div class="metric-label">精确率</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-value">{{ (metrics.recall * 100)|round(2) }}%</div>
-                        <div class="metric-label">召回率</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-value">{{ (metrics.f1 * 100)|round(2) }}%</div>
-                        <div class="metric-label">F1值</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-value">{{ (metrics.roc_auc * 100)|round(2) }}%</div>
-                        <div class="metric-label">AUC</div>
-                    </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="metric-card">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-value">{{ (metrics.accuracy * 100)|round(2) }}%</div>
+                    <div class="metric-label">准确率</div>
                 </div>
-                
-                <div class="confusion-matrix">
-                    <h5>混淆矩阵</h5>
-                    <div class="matrix-table">
-                        <div class="matrix-row">
-                            <div class="matrix-cell header"></div>
-                            <div class="matrix-cell header">预测良性</div>
-                            <div class="matrix-cell header">预测恶性</div>
-                        </div>
-                        <div class="matrix-row">
-                            <div class="matrix-cell header">实际良性</div>
-                            <div class="matrix-cell tp">{{ metrics.confusion_matrix[1][1] }}</div>
-                            <div class="matrix-cell fn">{{ metrics.confusion_matrix[1][0] }}</div>
-                        </div>
-                        <div class="matrix-row">
-                            <div class="matrix-cell header">实际恶性</div>
-                            <div class="matrix-cell fp">{{ metrics.confusion_matrix[0][1] }}</div>
-                            <div class="matrix-cell tn">{{ metrics.confusion_matrix[0][0] }}</div>
-                        </div>
-                    </div>
-                    <div class="matrix-legend">
-                        <span>✓ 真阳性: 实际良性，预测良性</span>
-                        <span>✗ 假阴性: 实际良性，预测恶性</span>
-                        <span>✗ 假阳性: 实际恶性，预测良性</span>
-                        <span>✓ 真阴性: 实际恶性，预测恶性</span>
-                    </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📐</div>
+                    <div class="metric-value">{{ (metrics.accuracy_std * 100)|round(2) }}%</div>
+                    <div class="metric-label">标准差</div>
                 </div>
             </div>
-            {% endfor %}
         </div>
 
         <div class="performance-section">
-            <h3>🔑 特征重要性（随机森林）</h3>
+            <h3>🔑 特征重要性（前10位）</h3>
+            <div class="chart-container" style="margin-bottom: 20px;">
+                <canvas id="featureChart"></canvas>
+            </div>
             <div class="feature-importance-list">
                 {% for feature in feature_importance %}
                 <div class="feature-item">
-                    <span class="feature-name">{{ feature.name }}</span>
+                    <span class="feature-name">{{ feature[0] }}</span>
                     <div class="importance-bar-container">
-                        <div class="importance-bar" style="width: {{ feature.importance * 100 }}%"></div>
+                        <div class="importance-bar" style="width: {{ feature[1] * 100 }}%"></div>
                     </div>
-                    <span class="importance-value">{{ (feature.importance * 100)|round(2) }}%</span>
+                    <span class="importance-value">{{ (feature[1] * 100)|round(2) }}%</span>
                 </div>
                 {% endfor %}
+            </div>
+        </div>
+
+        <div class="performance-section">
+            <h3>📈 特征重要性说明</h3>
+            <div class="metrics-explanation">
+                <div class="explanation-item">
+                    <h4>🔬 特征重要性来源</h4>
+                    <p>特征重要性来自随机森林模型的Gini重要性计算，表示每个特征对模型预测的贡献程度。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>📊 重要特征解读</h4>
+                    <p>排名靠前的特征（如 concave points_worst、perimeter_worst、radius_worst）是区分良性和恶性肿瘤的关键指标。</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>🎯 临床意义</h4>
+                    <p>这些特征对应肿瘤的形态学特征，医生在诊断时也会重点关注这些指标。</p>
+                </div>
             </div>
         </div>
 
@@ -85,25 +64,19 @@
             <div class="metrics-explanation">
                 <div class="explanation-item">
                     <h4>准确率 (Accuracy)</h4>
-                    <p>正确预测的样本占总样本的比例。</p>
+                    <p>正确预测的样本占总样本的比例。本模型准确率约为 {{ (metrics.accuracy * 100)|round(2) }}%。</p>
                 </div>
                 <div class="explanation-item">
-                    <h4>精确率 (Precision)</h4>
-                    <p>预测为恶性的样本中，实际为恶性的比例。高精确率意味着更少的假阳性。</p>
-                </div>
-                <div class="explanation-item">
-                    <h4>召回率 (Recall)</h4>
-                    <p>实际为恶性的样本中，被正确预测为恶性的比例。高召回率意味着更少的假阴性。</p>
-                </div>
-                <div class="explanation-item">
-                    <h4>F1值 (F1 Score)</h4>
-                    <p>精确率和召回率的调和平均数，综合衡量模型性能。</p>
-                </div>
-                <div class="explanation-item">
-                    <h4>AUC</h4>
-                    <p>ROC曲线下的面积，衡量模型区分正负样本的能力，范围0.5-1，越接近1越好。</p>
+                    <h4>标准差 (Standard Deviation)</h4>
+                    <p>模型在不同数据集上的稳定性指标，值越小表示模型越稳定。</p>
                 </div>
             </div>
+        </div>
+
+        <div class="performance-section">
+            <h3>⚖️ 模型对比</h3>
+            <p style="color: #666; margin-bottom: 20px;">想了解不同模型的性能对比？</p>
+            <a href="/model-comparison" class="btn btn-primary">🔍 查看模型对比</a>
         </div>
     </div>
 {% endblock %}
@@ -112,146 +85,175 @@
 <style>
     .performance-section {
         margin-bottom: 30px;
-        padding: 20px;
+        padding: 25px;
         background: #f8f9fa;
-        border-radius: 10px;
+        border-radius: 12px;
     }
     .performance-section h3 {
         color: #667eea;
         margin-bottom: 20px;
-    }
-    .model-card {
-        background: white;
-        padding: 25px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        border-left: 4px solid #667eea;
-    }
-    .model-card h4 {
-        color: #333;
-        margin-bottom: 20px;
         font-size: 18px;
     }
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-    .metric-item {
+    .metric-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
         text-align: center;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border-left: 4px solid #667eea;
+    }
+    .metric-icon {
+        font-size: 36px;
+        margin-bottom: 10px;
     }
     .metric-value {
-        font-size: 28px;
+        font-size: 36px;
         font-weight: bold;
         color: #667eea;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
     .metric-label {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
     }
-    .confusion-matrix {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
+    .chart-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    .confusion-matrix h5 {
-        color: #555;
-        margin-bottom: 15px;
-    }
-    .matrix-table {
-        display: inline-block;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .matrix-row {
-        display: flex;
-    }
-    .matrix-cell {
-        width: 80px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #ddd;
-        font-weight: 500;
-    }
-    .matrix-cell.header {
-        background: #f0f0f0;
-        font-size: 12px;
-        color: #666;
-        width: 100px;
-    }
-    .matrix-cell.tp { background: #e8f5e9; color: #4CAF50; }
-    .matrix-cell.fn { background: #ffebee; color: #F44336; }
-    .matrix-cell.fp { background: #fff3e0; color: #FF9800; }
-    .matrix-cell.tn { background: #e3f2fd; color: #2196F3; }
-    .matrix-legend {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-        margin-top: 15px;
-        font-size: 12px;
-        color: #666;
+    .chart-container canvas {
+        width: 100% !important;
+        height: 300px !important;
     }
     .feature-importance-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
     }
     .feature-item {
         display: flex;
         align-items: center;
         gap: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s;
+    }
+    .feature-item:hover {
+        background: #f8f9fa;
     }
     .feature-name {
-        width: 200px;
+        width: 220px;
         font-size: 14px;
         color: #555;
+        font-weight: 500;
     }
     .importance-bar-container {
         flex: 1;
-        height: 20px;
+        height: 24px;
         background: #eee;
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
     }
     .importance-bar {
         height: 100%;
         background: linear-gradient(90deg, #667eea, #764ba2);
-        border-radius: 10px;
-        transition: width 0.5s;
+        border-radius: 12px;
+        transition: width 0.8s ease;
     }
     .importance-value {
-        width: 60px;
+        width: 70px;
         text-align: right;
-        font-weight: 500;
+        font-weight: 600;
         color: #667eea;
+        font-size: 14px;
     }
     .metrics-explanation {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        gap: 15px;
     }
     .explanation-item {
         background: white;
-        padding: 15px;
-        border-radius: 8px;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
     }
     .explanation-item h4 {
-        color: #667eea;
-        margin-bottom: 8px;
-        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 15px;
     }
     .explanation-item p {
         color: #666;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1.6;
+        margin: 0;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var featureNames = {{ feature_names|tojson|safe }};
+        var featureImportances = {{ feature_importance_values|tojson|safe }};
+        
+        var ctx = document.getElementById('featureChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: featureNames.reverse(),
+                datasets: [{
+                    label: '特征重要性',
+                    data: featureImportances.reverse(),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '重要性: ' + (context.parsed.x * 100).toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 0.3,
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

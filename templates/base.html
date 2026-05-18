@@ -1,16 +1,55 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}乳腺癌预测系统{% endblock %}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; }
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-card: white;
+            --bg-navbar: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --text-white: white;
+            --accent-primary: #667eea;
+            --accent-success: #4CAF50;
+            --accent-danger: #dc3545;
+            --accent-warning: #ffc107;
+            --border-color: #eee;
+            --border-focus: #667eea;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --navbar-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        :root.dark {
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-navbar: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --text-white: #f0f0f0;
+            --accent-primary: #805ad5;
+            --accent-success: #48bb78;
+            --accent-danger: #fc8181;
+            --accent-warning: #f6ad55;
+            --border-color: #2d3748;
+            --border-focus: #805ad5;
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
+            --navbar-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        body { 
+            font-family: 'Microsoft YaHei', sans-serif; 
+            background: var(--bg-primary); 
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-navbar);
             padding: 12px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--navbar-shadow);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -23,7 +62,7 @@
             align-items: center;
         }
         .navbar-brand {
-            color: white;
+            color: var(--text-white);
             font-size: 18px;
             font-weight: bold;
             text-decoration: none;
@@ -47,7 +86,7 @@
             padding-left: 0;
         }
         .navbar-links a {
-            color: white;
+            color: var(--text-white);
             text-decoration: none;
             padding: 8px 14px;
             border-radius: 20px;
@@ -68,9 +107,30 @@
             background: rgba(255,255,255,0.3);
             margin: 0 10px;
         }
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--text-white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
         .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        h1, h2, h3, h4 { color: #333; margin-bottom: 20px; }
+        .card { 
+            background: var(--bg-card); 
+            border-radius: 15px; 
+            padding: 30px; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        h1, h2, h3, h4 { color: var(--text-primary); margin-bottom: 20px; }
         h2 { font-size: 22px; }
         h3 { font-size: 18px; }
         .btn { padding: 10px 25px; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; transition: all 0.3s; text-decoration: none; display: inline-block; text-align: center; }
@@ -78,38 +138,47 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
         .btn-secondary { background: #f0f0f0; color: #333; }
         .btn-secondary:hover { background: #e0e0e0; }
-        .btn-success { background: #4CAF50; color: white; }
+        .btn-success { background: var(--accent-success); color: white; }
         .btn-success:hover { background: #43a047; }
         .btn-info { background: #2196F3; color: white; }
         .btn-info:hover { background: #1976D2; }
-        .btn-danger { background: #F44336; color: white; }
+        .btn-danger { background: var(--accent-danger); color: white; }
         .btn-danger:hover { background: #d32f2f; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; transition: all 0.3s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #667eea; outline: none; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid var(--border-color); 
+            border-radius: 10px; 
+            font-size: 14px; 
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-focus); outline: none; }
         .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
         .alert-success { background: #d4edda; color: #155724; }
         .alert-error { background: #f8d7da; color: #721c24; }
         .alert-info { background: #d1ecf1; color: #0c5460; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { background: #f8f9fa; font-weight: 600; color: #333; }
-        tr:hover { background: #f8f9fa; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        th { background: var(--bg-primary); font-weight: 600; color: var(--text-primary); }
+        tr:hover { background: var(--bg-primary); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .stat-card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .stat-card .number { font-size: 32px; font-weight: bold; color: #667eea; margin-bottom: 8px; }
-        .stat-card .label { color: #666; font-size: 13px; }
-        .footer { text-align: center; padding: 30px; color: #999; font-size: 14px; margin-top: 50px; }
+        .stat-card { background: var(--bg-card); border-radius: 15px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+        .stat-card .number { font-size: 32px; font-weight: bold; color: var(--accent-primary); margin-bottom: 8px; }
+        .stat-card .label { color: var(--text-secondary); font-size: 13px; }
+        .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 14px; margin-top: 50px; }
         .float-right { float: right; }
         .clearfix { clear: both; }
         .text-center { text-align: center; }
-        .text-muted { color: #999; }
+        .text-muted { color: var(--text-muted); }
         .small { font-size: 12px; }
-        .danger { color: #dc3545; }
-        .success { color: #28a745; }
-        .warning { color: #ffc107; }
-        .empty-state { text-align: center; padding: 40px; color: #999; }
+        .danger { color: var(--accent-danger); }
+        .success { color: var(--accent-success); }
+        .warning { color: var(--accent-warning); }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .status-benign { background: #e8f5e9; color: #4CAF50; }
         .status-malignant { background: #ffebee; color: #F44336; }
@@ -160,6 +229,12 @@
                             {% endif %}
                             <a href="/logout">🔓 退出</a>
                         </div>
+                        <div class="navbar-group" style="gap: 5px;">
+                            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙 深色</button>
+                            <button class="theme-toggle" onclick="toggleLang()" id="lang-toggle">🌐 EN</button>
+                            <button class="theme-toggle" onclick="toggleColorBlind()" id="colorblind-toggle">👁️ 色盲</button>
+                            <button class="theme-toggle" onclick="startSpeech()" id="speech-toggle">🔊 TTS</button>
+                        </div>
                     </div>
                 {% else %}
                     <div class="navbar-section">
@@ -173,6 +248,12 @@
                         <div class="navbar-group">
                             <a href="/login">🔐 登录</a>
                             <a href="/register">📝 注册</a>
+                        </div>
+                        <div class="navbar-group" style="gap: 5px;">
+                            <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙 深色</button>
+                            <button class="theme-toggle" onclick="toggleLang()" id="lang-toggle">🌐 EN</button>
+                            <button class="theme-toggle" onclick="toggleColorBlind()" id="colorblind-toggle">👁️ 色盲</button>
+                            <button class="theme-toggle" onclick="startSpeech()" id="speech-toggle">🔊 TTS</button>
                         </div>
                     </div>
                 {% endif %}
@@ -193,13 +274,339 @@
     </div>
 
     <div class="footer">
-        <p>🎗️ 乳腺癌预测系统 - 仅供辅助参考，不能替代专业医生诊断</p>
+        <p>🎗️ <span data-i18n="footer_text">乳腺癌预测系统 - 仅供辅助参考，不能替代专业医生诊断</span></p>
         <p style="margin-top: 10px; font-size: 12px;">
-            <a href="/health-info" style="color: #667eea;">健康资讯</a> · 
-            <a href="/model-performance" style="color: #667eea;">模型性能</a> · 
-            <a href="/faq" style="color: #667eea;">常见问题</a>
+            <a href="/health-info" style="color: #667eea;"><span data-i18n="footer_health">健康资讯</span></a> · 
+            <a href="/model-performance" style="color: #667eea;"><span data-i18n="footer_model">模型性能</span></a> · 
+            <a href="/faq" style="color: #667eea;"><span data-i18n="footer_faq">常见问题</span></a>
         </p>
     </div>
+
+    <style>
+        :root.colorblind-protanopia {
+            --accent-success: #4CAF50;
+            --accent-danger: #2196F3;
+            --accent-warning: #667eea;
+        }
+        :root.colorblind-deuteranopia {
+            --accent-success: #81C784;
+            --accent-danger: #64B5F6;
+            --accent-warning: #BA68C8;
+        }
+        :root.colorblind-tritanopia {
+            --accent-success: #FF9800;
+            --accent-danger: #E91E63;
+            --accent-warning: #2196F3;
+        }
+        .colorblind-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 9999;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+
+    <script>
+        const i18n = {
+            zh: {
+                hero_title: '乳腺癌预测系统',
+                hero_subtitle: '基于机器学习的智能乳腺癌预测平台',
+                btn_predict: '开始预测',
+                btn_history: '查看历史',
+                btn_login: '登录系统',
+                btn_register: '注册账号',
+                video_title: '乳腺癌科普介绍',
+                btn_tts: '语音播放',
+                video_title_detail: '乳腺癌预防与早期筛查',
+                video_desc: '了解乳腺癌的早期症状、预防方法和筛查建议，关爱乳腺健康从了解开始。',
+                btn_play: '播放',
+                btn_pause: '暂停',
+                btn_mute: '静音',
+                btn_unmute: '取消静音',
+                btn_fullscreen: '全屏',
+                btn_youtube: '在YouTube观看',
+                btn_bilibili: 'B站科普',
+                btn_official: '国家卫健委',
+                btn_cancer: '抗癌协会',
+                btn_play_video: '点击观看',
+                stat_samples: '训练样本数',
+                stat_features: '特征维度',
+                stat_accuracy: '预测准确率',
+                stat_models: '预测模型',
+                features_title: '系统功能',
+                feature1_title: '用户认证',
+                feature1_desc: '安全的用户注册与登录系统，保护您的隐私数据',
+                feature2_title: '智能预测',
+                feature2_desc: '基于随机森林和逻辑回归的精准预测',
+                feature3_title: '结果分析',
+                feature3_desc: '详细的预测结果分析和特征重要性展示',
+                feature4_title: 'AI助手',
+                feature4_desc: '基于知识库的健康咨询服务',
+                disclaimer_title: '重要声明',
+                disclaimer1: '⚠️ 本系统仅供学习研究使用，不替代专业医生的诊断！',
+                disclaimer2: '如有身体不适，请及时就医。模型准确率虽高，但仍存在误判可能。',
+                footer_text: '乳腺癌预测系统 - 仅供辅助参考，不能替代专业医生诊断',
+                footer_health: '健康资讯',
+                footer_model: '模型性能',
+                footer_faq: '常见问题'
+            },
+            en: {
+                hero_title: 'Breast Cancer Prediction System',
+                hero_subtitle: 'Intelligent Breast Cancer Prediction Platform Based on Machine Learning',
+                btn_predict: 'Start Prediction',
+                btn_history: 'View History',
+                btn_login: 'Login',
+                btn_register: 'Register',
+                video_title: 'Breast Cancer Education',
+                btn_tts: 'Text-to-Speech',
+                video_title_detail: 'Breast Cancer Prevention and Early Detection',
+                video_desc: 'Learn about early symptoms, prevention methods and screening recommendations for breast cancer. Start with awareness.',
+                btn_play: 'Play',
+                btn_pause: 'Pause',
+                btn_mute: 'Mute',
+                btn_unmute: 'Unmute',
+                btn_fullscreen: 'Fullscreen',
+                btn_youtube: 'Watch on YouTube',
+                btn_bilibili: 'Bilibili Videos',
+                btn_official: 'Health Commission',
+                btn_cancer: 'Cancer Association',
+                btn_play_video: 'Click to Watch',
+                stat_samples: 'Training Samples',
+                stat_features: 'Features',
+                stat_accuracy: 'Prediction Accuracy',
+                stat_models: 'Prediction Models',
+                features_title: 'System Features',
+                feature1_title: 'User Authentication',
+                feature1_desc: 'Secure user registration and login system to protect your privacy',
+                feature2_title: 'Smart Prediction',
+                feature2_desc: 'Accurate prediction based on Random Forest and Logistic Regression',
+                feature3_title: 'Result Analysis',
+                feature3_desc: 'Detailed prediction analysis and feature importance display',
+                feature4_title: 'AI Assistant',
+                feature4_desc: 'Knowledge-based health consultation service',
+                disclaimer_title: 'Important Disclaimer',
+                disclaimer1: '⚠️ This system is for research only, not a substitute for professional diagnosis!',
+                disclaimer2: 'If you have any health concerns, please consult a doctor. High accuracy does not guarantee no misjudgment.',
+                footer_text: 'Breast Cancer Prediction System - For reference only, not a substitute for professional diagnosis',
+                footer_health: 'Health Info',
+                footer_model: 'Model Performance',
+                footer_faq: 'FAQ'
+            }
+        };
+
+        let currentLang = 'zh';
+        let isSpeaking = false;
+        let speechSynthesis = window.speechSynthesis;
+
+        function toggleTheme() {
+            const root = document.getElementById('html-root');
+            const toggleBtn = document.getElementById('theme-toggle');
+            
+            if (root.classList.contains('dark')) {
+                root.classList.remove('dark');
+                toggleBtn.innerHTML = '🌙 深色';
+                localStorage.setItem('theme', 'light');
+            } else {
+                root.classList.add('dark');
+                toggleBtn.innerHTML = '☀️ 浅色';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleLang() {
+            const toggleBtn = document.getElementById('lang-toggle');
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            toggleBtn.innerHTML = currentLang === 'zh' ? '🌐 EN' : '🌐 中';
+            localStorage.setItem('lang', currentLang);
+            applyLang(currentLang);
+        }
+
+        function applyLang(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+        }
+
+        let colorblindMode = 0;
+        const colorblindModes = ['normal', 'protanopia', 'deuteranopia', 'tritanopia'];
+        const colorblindLabels = {
+            zh: ['👁️ 色盲', '👁️ 红绿色盲', '👁️ 绿色盲', '👁️ 蓝黄色盲'],
+            en: ['👁️ CB', '👁️ Prota', '👁️ Deuter', '👁️ Tritan']
+        };
+
+        function toggleColorBlind() {
+            const root = document.getElementById('html-root');
+            const toggleBtn = document.getElementById('colorblind-toggle');
+            
+            if (colorblindMode > 0) {
+                root.classList.remove('colorblind-' + colorblindModes[colorblindMode]);
+            }
+            
+            colorblindMode = (colorblindMode + 1) % colorblindModes.length;
+            
+            if (colorblindMode > 0) {
+                root.classList.add('colorblind-' + colorblindModes[colorblindMode]);
+            }
+            
+            toggleBtn.innerHTML = colorblindLabels[currentLang][colorblindMode];
+            localStorage.setItem('colorblind', colorblindMode.toString());
+            
+            showColorBlindIndicator();
+        }
+
+        function showColorBlindIndicator() {
+            let indicator = document.getElementById('colorblind-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'colorblind-indicator';
+                indicator.className = 'colorblind-indicator';
+                document.body.appendChild(indicator);
+            }
+            
+            if (colorblindMode === 0) {
+                indicator.style.display = 'none';
+            } else {
+                const modeNames = currentLang === 'zh' 
+                    ? ['正常', '红绿色盲模式', '绿色盲模式', '蓝黄色盲模式']
+                    : ['Normal', 'Protanopia Mode', 'Deuteranopia Mode', 'Tritanopia Mode'];
+                indicator.textContent = modeNames[colorblindMode];
+                indicator.style.display = 'block';
+            }
+        }
+
+        function readText(textIds) {
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                return;
+            }
+            
+            const ids = textIds.split(',');
+            let fullText = '';
+            
+            ids.forEach(id => {
+                if (i18n[currentLang] && i18n[currentLang][id]) {
+                    fullText += i18n[currentLang][id] + '。';
+                }
+            });
+            
+            if (fullText) {
+                speak(fullText);
+            }
+        }
+
+        function speak(text) {
+            if (!speechSynthesis) {
+                alert(currentLang === 'zh' ? '您的浏览器不支持语音播放' : 'Your browser does not support text-to-speech');
+                return;
+            }
+            
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = currentLang === 'zh' ? 'zh-CN' : 'en-US';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            
+            utterance.onstart = () => {
+                isSpeaking = true;
+                updateSpeechBtn(true);
+            };
+            
+            utterance.onend = () => {
+                isSpeaking = false;
+                updateSpeechBtn(false);
+            };
+            
+            utterance.onerror = () => {
+                isSpeaking = false;
+                updateSpeechBtn(false);
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        function startSpeech() {
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                updateSpeechBtn(false);
+                return;
+            }
+            
+            const text = collectPageText();
+            if (text) {
+                speak(text);
+            }
+        }
+
+        function collectPageText() {
+            const elements = document.querySelectorAll('h1, h2, h3, p, li, td, th');
+            let text = '';
+            
+            elements.forEach(el => {
+                if (el.offsetParent !== null && !el.closest('nav') && !el.closest('.footer')) {
+                    const content = el.textContent.trim();
+                    if (content && content.length < 100) {
+                        text += content + '。';
+                    }
+                }
+            });
+            
+            return text.substring(0, 1000);
+        }
+
+        function updateSpeechBtn(speaking) {
+            const btn = document.getElementById('speech-toggle');
+            if (btn) {
+                btn.innerHTML = speaking ? '⏹️ 停止' : '🔊 TTS';
+                btn.style.background = speaking 
+                    ? 'linear-gradient(135deg, #F44336, #ff6b6b)'
+                    : 'rgba(255,255,255,0.2)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const root = document.getElementById('html-root');
+            const themeBtn = document.getElementById('theme-toggle');
+            
+            if (savedTheme === 'dark') {
+                root.classList.add('dark');
+                if (themeBtn) themeBtn.innerHTML = '☀️ 浅色';
+            }
+
+            const savedLang = localStorage.getItem('lang');
+            if (savedLang) {
+                currentLang = savedLang;
+                const langBtn = document.getElementById('lang-toggle');
+                if (langBtn) langBtn.innerHTML = currentLang === 'zh' ? '🌐 EN' : '🌐 中';
+                applyLang(currentLang);
+            }
+
+            const savedColorBlind = localStorage.getItem('colorblind');
+            if (savedColorBlind) {
+                colorblindMode = parseInt(savedColorBlind);
+                if (colorblindMode > 0) {
+                    root.classList.add('colorblind-' + colorblindModes[colorblindMode]);
+                }
+                const cbBtn = document.getElementById('colorblind-toggle');
+                if (cbBtn) cbBtn.innerHTML = colorblindLabels[currentLang][colorblindMode];
+                showColorBlindIndicator();
+            }
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
