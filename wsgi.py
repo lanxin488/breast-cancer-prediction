@@ -2,7 +2,7 @@
 import sys
 import os
 
-path = '/home/lanxin488/breast-cancer-prediction'
+path = os.path.dirname(os.path.abspath(__file__))
 if path not in sys.path:
     sys.path.append(path)
 
