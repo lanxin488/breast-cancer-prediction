@@ -217,11 +217,10 @@
 
         <div id="video-local" class="video-player-box active">
             <div class="video-container">
-                <video id="localVideo" controls preload="metadata" poster="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800">
+                <video id="localVideo" controls preload="none" muted>
                     <source src="/static/videos/breast_cancer.mp4" type="video/mp4">
                     <source src="/static/videos/breast_cancer.webm" type="video/webm">
-                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                    您的浏览器不支持视频播放。
+                    您的浏览器不支持视频播放，或视频文件不存在。
                 </video>
             </div>
             <div class="local-video-hint">
@@ -236,12 +235,13 @@
         <div id="video-bilibili" class="video-player-box">
             <div class="video-container">
                 <iframe 
-                    src="//player.bilibili.com/player.html?bvid=BV1p54y1z7B8&page=1&high_quality=1" 
+                    data-src="//player.bilibili.com/player.html?bvid=BV1p54y1z7B8&page=1&high_quality=1&muted=1" 
                     scrolling="no" 
                     border="0" 
                     frameborder="no" 
                     framespacing="0" 
-                    allowfullscreen="true">
+                    allowfullscreen="true"
+                    class="lazy-iframe">
                 </iframe>
             </div>
             <div class="local-video-hint">
@@ -252,31 +252,31 @@
 
         <div id="video-xigua" class="video-player-box">
             <div class="video-container" style="height: 450px;">
-                <iframe 
-                    src="https://www.ixigua.com/" 
-                    frameborder="0" 
-                    style="width: 100%; height: 100%;"
-                    allowfullscreen="true">
-                </iframe>
-            </div>
-            <div class="local-video-hint">
-                <strong>🍉 西瓜视频：</strong><br>
-                访问西瓜视频网站，搜索「乳腺癌科普」查看相关视频
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; border-radius: 10px;">
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🍉</div>
+                        <h4 style="color: #333; margin-bottom: 10px;">西瓜视频</h4>
+                        <p style="color: #666; margin-bottom: 20px;">点击下方按钮跳转到西瓜视频网站</p>
+                        <a href="https://www.ixigua.com/search/%E4%B9%B3%E8%85%BA%E7%99%8C%E7%A7%91%E6%99%AE/" target="_blank" class="btn btn-primary" style="text-decoration: none;">
+                            🔗 访问西瓜视频
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="video-douyin" class="video-player-box">
-            <div class="video-container" style="height: 600px; max-width: 400px;">
-                <iframe 
-                    src="https://www.douyin.com/" 
-                    frameborder="0" 
-                    style="width: 100%; height: 100%; border-radius: 15px;"
-                    allowfullscreen="true">
-                </iframe>
-            </div>
-            <div class="local-video-hint">
-                <strong>🎵 抖音视频：</strong><br>
-                访问抖音网页版，搜索「乳腺癌科普」查看短视频
+            <div class="video-container" style="height: 450px;">
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; border-radius: 10px;">
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎵</div>
+                        <h4 style="color: #333; margin-bottom: 10px;">抖音视频</h4>
+                        <p style="color: #666; margin-bottom: 20px;">点击下方按钮跳转到抖音网站</p>
+                        <a href="https://www.douyin.com/search/%E4%B9%B3%E8%85%BA%E7%99%8C%E7%A7%91%E6%99%AE" target="_blank" class="btn btn-primary" style="text-decoration: none;">
+                            🔗 访问抖音
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -412,6 +412,10 @@
         var players = document.querySelectorAll('.video-player-box');
         players.forEach(function(p) {
             p.classList.remove('active');
+            var iframe = p.querySelector('.lazy-iframe');
+            if (iframe && iframe.dataset.src) {
+                iframe.src = '';
+            }
         });
         
         var btns = document.querySelectorAll('.video-option-btn');
@@ -419,8 +423,14 @@
             b.classList.remove('active');
         });
         
-        document.getElementById('video-' + type).classList.add('active');
+        var target = document.getElementById('video-' + type);
+        target.classList.add('active');
         event.target.classList.add('active');
+        
+        var lazyIframe = target.querySelector('.lazy-iframe');
+        if (lazyIframe && lazyIframe.dataset.src) {
+            lazyIframe.src = lazyIframe.dataset.src;
+        }
     }
 </script>
 {% endblock %}

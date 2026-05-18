@@ -101,13 +101,13 @@ class BreastCancerModel:
         self.scaler = StandardScaler()
         self.feature_names = ['radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean',
                             'smoothness_mean', 'compactness_mean', 'concavity_mean',
-                            'concave points_mean', 'symmetry_mean', 'fractal_dimension_mean',
+                            'concave_points_mean', 'symmetry_mean', 'fractal_dimension_mean',
                             'radius_se', 'texture_se', 'perimeter_se', 'area_se',
                             'smoothness_se', 'compactness_se', 'concavity_se',
-                            'concave points_se', 'symmetry_se', 'fractal_dimension_se',
+                            'concave_points_se', 'symmetry_se', 'fractal_dimension_se',
                             'radius_worst', 'texture_worst', 'perimeter_worst', 'area_worst',
                             'smoothness_worst', 'compactness_worst', 'concavity_worst',
-                            'concave points_worst', 'symmetry_worst', 'fractal_dimension_worst']
+                            'concave_points_worst', 'symmetry_worst', 'fractal_dimension_worst']
         self.is_trained = False
         self._load_or_train_model()
 
@@ -160,7 +160,7 @@ class BreastCancerModel:
         importances = list(zip(self.feature_names, self.model.feature_importances_))
         importances.sort(key=lambda x: x[1], reverse=True)
         
-        return importances[:top_n]
+        return [{'name': item[0], 'importance': item[1]} for item in importances[:top_n]]
 
     def get_model_metrics(self):
         from sklearn.datasets import load_breast_cancer
@@ -663,9 +663,8 @@ def ai_chat():
         return jsonify({'success': False, 'message': '请输入问题'}), 400
 
     answer = knowledge_base.find_answer(question)
-    source = '<span class="ai-source">📚 健康知识库</span>'
     
-    return jsonify({'success': True, 'answer': answer + source, 'source': 'knowledge_base'})
+    return jsonify({'success': True, 'answer': answer, 'source': 'knowledge_base'})
 
 @app.route('/health-info')
 def health_info():
@@ -675,8 +674,8 @@ def health_info():
 def model_performance():
     metrics = breast_cancer_model.get_model_metrics()
     feature_importance = breast_cancer_model.get_feature_importance(10)
-    feature_names = [item[0] for item in feature_importance]
-    feature_importance_values = [item[1] for item in feature_importance]
+    feature_names = [item['name'] for item in feature_importance]
+    feature_importance_values = [item['importance'] for item in feature_importance]
     return render_template('model_performance.html', 
                          metrics=metrics, 
                          feature_importance=feature_importance,
@@ -734,6 +733,21 @@ def about():
 @app.route('/model-update-log')
 def model_update_log():
     return render_template('model_update_log.html')
+
+@app.route('/data-visualization')
+@login_required
+def data_visualization():
+    from sklearn.datasets import load_breast_cancer
+    data = load_breast_cancer()
+    benign_count = sum(data.target == 1)
+    malignant_count = sum(data.target == 0)
+    return render_template('data_visualization.html', 
+                         benign_count=benign_count, 
+                         malignant_count=malignant_count)
+
+@app.route('/privacy-security')
+def privacy_security():
+    return render_template('privacy_security.html')
 
 @app.route('/ai-chat-page')
 @login_required

@@ -31,11 +31,11 @@
             <div class="feature-importance-list">
                 {% for feature in feature_importance %}
                 <div class="feature-item">
-                    <span class="feature-name">{{ feature[0] }}</span>
+                    <span class="feature-name">{{ feature.name }}</span>
                     <div class="importance-bar-container">
-                        <div class="importance-bar" style="width: {{ feature[1] * 100 }}%"></div>
+                        <div class="importance-bar" style="width: {{ feature.importance * 100 }}%"></div>
                     </div>
-                    <span class="importance-value">{{ (feature[1] * 100)|round(2) }}%</span>
+                    <span class="importance-value">{{ (feature.importance * 100)|round(2) }}%</span>
                 </div>
                 {% endfor %}
             </div>

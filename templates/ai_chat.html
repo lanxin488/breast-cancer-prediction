@@ -310,6 +310,8 @@
 
 {% block extra_js %}
 <script>
+let currentTypingElement = null;
+
 function sendQuickQuestion(question) {
     document.getElementById('user-input').value = question;
     sendMessage();
@@ -323,19 +325,22 @@ async function sendMessage() {
 
     var chatContainer = document.getElementById('chat-container');
 
-    chatContainer.innerHTML += `
-        <div class="message user">
-            <div class="message-content">${question}</div>
-        </div>
-        <div class="message bot">
-            <div class="message-content typing-indicator">
-                <span>正在思考</span>
-                <div class="typing-dots">
-                    <span></span><span></span><span></span>
-                </div>
+    var userDiv = document.createElement('div');
+    userDiv.className = 'message user';
+    userDiv.innerHTML = `<div class="message-content">${question}</div>`;
+    chatContainer.appendChild(userDiv);
+
+    var botDiv = document.createElement('div');
+    botDiv.className = 'message bot';
+    botDiv.innerHTML = `
+        <div class="message-content typing-indicator">
+            <span>正在思考</span>
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
             </div>
-        </div>
-    `;
+        </div>`;
+    chatContainer.appendChild(botDiv);
+    currentTypingElement = botDiv;
 
     input.value = '';
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -349,16 +354,15 @@ async function sendMessage() {
 
         var data = await response.json();
 
-        var sourceHtml = '<span class="ai-source source-kb">📚 健康知识库</span>';
-        chatContainer.innerHTML = chatContainer.innerHTML.replace(
-            '<div class="message-content typing-indicator"><span>正在思考</span><div class="typing-dots"><span></span><span></span><span></span></div></div>',
-            `<div class="message-content">${data.answer}${sourceHtml}</div>`
-        );
+        if (data.success) {
+            var sourceHtml = '<span class="ai-source source-kb">📚 健康知识库</span>';
+            var content = data.answer.replace(/\n/g, '<br>');
+            botDiv.innerHTML = `<div class="message-content">${content}<br><br>${sourceHtml}</div>`;
+        } else {
+            botDiv.innerHTML = '<div class="message-content">抱歉，我暂时无法回答这个问题。<span class="ai-source" style="background: #ffebee; color: #dc3545;">⚠️ 错误</span></div>';
+        }
     } catch (error) {
-        chatContainer.innerHTML = chatContainer.innerHTML.replace(
-            '<div class="message-content typing-indicator"><span>正在思考</span><div class="typing-dots"><span></span><span></span><span></span></div></div>',
-            '<div class="message-content">抱歉，我暂时无法回答这个问题。<span class="ai-source" style="background: #ffebee; color: #dc3545;">⚠️ 错误</span></div>'
-        );
+        botDiv.innerHTML = '<div class="message-content">抱歉，我暂时无法回答这个问题。<span class="ai-source" style="background: #ffebee; color: #dc3545;">⚠️ 网络错误</span></div>';
     }
 
     chatContainer.scrollTop = chatContainer.scrollHeight;

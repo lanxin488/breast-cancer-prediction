@@ -207,10 +207,10 @@
         transition: stroke-dashoffset 1s ease;
     }
     .gauge-fill.malignant {
-        stroke: url(#gradient-red);
+        stroke: #dc3545;
     }
     .gauge-fill.benign {
-        stroke: url(#gradient-green);
+        stroke: #28a745;
     }
     .gauge-text {
         position: absolute;
@@ -482,6 +482,7 @@
                     </defs>
                     <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
                     <circle id="gauge-fill" class="gauge-fill malignant" cx="50" cy="50" r="40" 
+                            stroke="#dc3545"
                             stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                 </svg>
                 <div class="gauge-text">
@@ -571,18 +572,100 @@
 <script>
 let uploadedImage = null;
 
-function fillRandomData() {
-    var exampleData = {
+const benignSamples = [
+    {
+        radius_mean: 13.54, texture_mean: 14.36, perimeter_mean: 87.46, area_mean: 566.3, smoothness_mean: 0.09779,
+        compactness_mean: 0.08129, concavity_mean: 0.06664, concave_points_mean: 0.04781, symmetry_mean: 0.1885, fractal_dimension_mean: 0.05766,
+        radius_se: 0.2699, texture_se: 0.7886, perimeter_se: 2.058, area_se: 23.56, smoothness_se: 0.008462,
+        compactness_se: 0.0146, concavity_se: 0.02387, concave_points_se: 0.01315, symmetry_se: 0.0198, fractal_dimension_se: 0.0023,
+        radius_worst: 15.11, texture_worst: 19.26, perimeter_worst: 99.7, area_worst: 711.2, smoothness_worst: 0.144,
+        compactness_worst: 0.1773, concavity_worst: 0.239, concave_points_worst: 0.1288, symmetry_worst: 0.2977, fractal_dimension_worst: 0.07259
+    },
+    {
+        radius_mean: 13.08, texture_mean: 15.71, perimeter_mean: 85.63, area_mean: 520, smoothness_mean: 0.1075,
+        compactness_mean: 0.127, concavity_mean: 0.04568, concave_points_mean: 0.0311, symmetry_mean: 0.1967, fractal_dimension_mean: 0.06811,
+        radius_se: 0.1852, texture_se: 0.7477, perimeter_se: 1.383, area_se: 14.67, smoothness_se: 0.004097,
+        compactness_se: 0.01898, concavity_se: 0.01698, concave_points_se: 0.00649, symmetry_se: 0.01678, fractal_dimension_se: 0.002425,
+        radius_worst: 14.5, texture_worst: 20.49, perimeter_worst: 96.09, area_worst: 630.5, smoothness_worst: 0.1312,
+        compactness_worst: 0.2776, concavity_worst: 0.189, concave_points_worst: 0.07283, symmetry_worst: 0.3184, fractal_dimension_worst: 0.08183
+    },
+    {
+        radius_mean: 9.504, texture_mean: 12.44, perimeter_mean: 60.34, area_mean: 273.9, smoothness_mean: 0.1024,
+        compactness_mean: 0.06492, concavity_mean: 0.02956, concave_points_mean: 0.02076, symmetry_mean: 0.1815, fractal_dimension_mean: 0.06905,
+        radius_se: 0.2773, texture_se: 0.9768, perimeter_se: 1.909, area_se: 15.7, smoothness_se: 0.009606,
+        compactness_se: 0.01432, concavity_se: 0.01985, concave_points_se: 0.01421, symmetry_se: 0.02027, fractal_dimension_se: 0.002968,
+        radius_worst: 10.23, texture_worst: 15.66, perimeter_worst: 65.13, area_worst: 314.9, smoothness_worst: 0.1324,
+        compactness_worst: 0.1148, concavity_worst: 0.08867, concave_points_worst: 0.06227, symmetry_worst: 0.245, fractal_dimension_worst: 0.07773
+    },
+    {
+        radius_mean: 11.36, texture_mean: 17.57, perimeter_mean: 72.49, area_mean: 399.8, smoothness_mean: 0.08858,
+        compactness_mean: 0.06059, concavity_mean: 0.01739, concave_points_mean: 0.01531, symmetry_mean: 0.1593, fractal_dimension_mean: 0.05907,
+        radius_se: 0.3786, texture_se: 1.055, perimeter_se: 2.468, area_se: 27.56, smoothness_se: 0.006437,
+        compactness_se: 0.0129, concavity_se: 0.01295, concave_points_se: 0.008881, symmetry_se: 0.01836, fractal_dimension_se: 0.001858,
+        radius_worst: 12.08, texture_worst: 21.59, perimeter_worst: 76.87, area_worst: 444.6, smoothness_worst: 0.1205,
+        compactness_worst: 0.1512, concavity_worst: 0.106, concave_points_worst: 0.0866, symmetry_worst: 0.2618, fractal_dimension_worst: 0.07609
+    },
+    {
+        radius_mean: 10.26, texture_mean: 14.71, perimeter_mean: 66.2, area_mean: 321.6, smoothness_mean: 0.09882,
+        compactness_mean: 0.09159, concavity_mean: 0.03581, concave_points_mean: 0.02037, symmetry_mean: 0.1633, fractal_dimension_mean: 0.07005,
+        radius_se: 0.2142, texture_se: 0.6759, perimeter_se: 1.564, area_se: 15.9, smoothness_se: 0.008029,
+        compactness_se: 0.02105, concavity_se: 0.02183, concave_points_se: 0.008748, symmetry_se: 0.01968, fractal_dimension_se: 0.003481,
+        radius_worst: 11.38, texture_worst: 19.03, perimeter_worst: 72.94, area_worst: 394.2, smoothness_worst: 0.1348,
+        compactness_worst: 0.2007, concavity_worst: 0.1643, concave_points_worst: 0.08333, symmetry_worst: 0.27, fractal_dimension_worst: 0.09353
+    }
+];
+
+const malignantSamples = [
+    {
         radius_mean: 17.99, texture_mean: 10.38, perimeter_mean: 122.8, area_mean: 1001, smoothness_mean: 0.1184,
         compactness_mean: 0.2776, concavity_mean: 0.3001, concave_points_mean: 0.1471, symmetry_mean: 0.2419, fractal_dimension_mean: 0.07871,
         radius_se: 1.095, texture_se: 0.9053, perimeter_se: 8.589, area_se: 153.4, smoothness_se: 0.006399,
         compactness_se: 0.04904, concavity_se: 0.05373, concave_points_se: 0.01587, symmetry_se: 0.03003, fractal_dimension_se: 0.006193,
         radius_worst: 25.38, texture_worst: 17.33, perimeter_worst: 184.6, area_worst: 2019, smoothness_worst: 0.1622,
         compactness_worst: 0.6656, concavity_worst: 0.7119, concave_points_worst: 0.2654, symmetry_worst: 0.4601, fractal_dimension_worst: 0.1189
-    };
+    },
+    {
+        radius_mean: 20.57, texture_mean: 17.77, perimeter_mean: 132.9, area_mean: 1326, smoothness_mean: 0.08474,
+        compactness_mean: 0.07864, concavity_mean: 0.0869, concave_points_mean: 0.07017, symmetry_mean: 0.1812, fractal_dimension_mean: 0.05667,
+        radius_se: 0.5435, texture_se: 0.7339, perimeter_se: 3.398, area_se: 74.08, smoothness_se: 0.005225,
+        compactness_se: 0.01308, concavity_se: 0.0186, concave_points_se: 0.0134, symmetry_se: 0.01389, fractal_dimension_se: 0.003532,
+        radius_worst: 24.99, texture_worst: 23.41, perimeter_worst: 158.8, area_worst: 1956, smoothness_worst: 0.1238,
+        compactness_worst: 0.1866, concavity_worst: 0.2416, concave_points_worst: 0.186, symmetry_worst: 0.275, fractal_dimension_worst: 0.08902
+    },
+    {
+        radius_mean: 19.69, texture_mean: 21.25, perimeter_mean: 130, area_mean: 1203, smoothness_mean: 0.1096,
+        compactness_mean: 0.1599, concavity_mean: 0.1974, concave_points_mean: 0.1279, symmetry_mean: 0.2069, fractal_dimension_mean: 0.05999,
+        radius_se: 0.7456, texture_se: 0.7869, perimeter_se: 4.585, area_se: 94.03, smoothness_se: 0.00615,
+        compactness_se: 0.04006, concavity_se: 0.03832, concave_points_se: 0.02058, symmetry_se: 0.0225, fractal_dimension_se: 0.004571,
+        radius_worst: 23.57, texture_worst: 25.53, perimeter_worst: 152.5, area_worst: 1709, smoothness_worst: 0.1444,
+        compactness_worst: 0.4245, concavity_worst: 0.4504, concave_points_worst: 0.243, symmetry_worst: 0.3613, fractal_dimension_worst: 0.08758
+    },
+    {
+        radius_mean: 20.29, texture_mean: 14.34, perimeter_mean: 135.1, area_mean: 1297, smoothness_mean: 0.1003,
+        compactness_mean: 0.1328, concavity_mean: 0.198, concave_points_mean: 0.1043, symmetry_mean: 0.1809, fractal_dimension_mean: 0.05883,
+        radius_se: 0.7572, texture_se: 0.7813, perimeter_se: 5.438, area_se: 94.44, smoothness_se: 0.01149,
+        compactness_se: 0.02461, concavity_se: 0.05688, concave_points_se: 0.01885, symmetry_se: 0.01756, fractal_dimension_se: 0.005115,
+        radius_worst: 22.54, texture_worst: 16.67, perimeter_worst: 152.2, area_worst: 1575, smoothness_worst: 0.1374,
+        compactness_worst: 0.205, concavity_worst: 0.4, concave_points_worst: 0.1625, symmetry_worst: 0.2364, fractal_dimension_worst: 0.07678
+    },
+    {
+        radius_mean: 21.37, texture_mean: 15.1, perimeter_mean: 141.3, area_mean: 1386, smoothness_mean: 0.1001,
+        compactness_mean: 0.147, concavity_mean: 0.1924, concave_points_mean: 0.1064, symmetry_mean: 0.1806, fractal_dimension_mean: 0.0595,
+        radius_se: 0.7795, texture_se: 0.6466, perimeter_se: 5.068, area_se: 104.7, smoothness_se: 0.008333,
+        compactness_se: 0.0384, concavity_se: 0.04436, concave_points_se: 0.01413, symmetry_se: 0.01598, fractal_dimension_se: 0.00438,
+        radius_worst: 26.4, texture_worst: 20.25, perimeter_worst: 172.2, area_worst: 2049, smoothness_worst: 0.1486,
+        compactness_worst: 0.2911, concavity_worst: 0.3346, concave_points_worst: 0.1688, symmetry_worst: 0.2959, fractal_dimension_worst: 0.08613
+    }
+];
+
+function fillRandomData() {
+    var isMalignant = Math.random() < 0.5;
+    var samples = isMalignant ? malignantSamples : benignSamples;
+    var randomIndex = Math.floor(Math.random() * samples.length);
+    var data = samples[randomIndex];
     
-    Object.keys(exampleData).forEach(key => {
-        document.getElementById(key).value = exampleData[key];
+    Object.keys(data).forEach(key => {
+        document.getElementById(key).value = data[key];
     });
 }
 
@@ -707,7 +790,15 @@ function updateGauge(value, result) {
     const offset = circumference - (value / 100) * circumference;
     
     gaugeFill.style.strokeDashoffset = offset;
-    gaugeFill.className = 'gauge-fill ' + (result === '恶性' ? 'malignant' : 'benign');
+    
+    if (result === '恶性') {
+        gaugeFill.setAttribute('class', 'gauge-fill malignant');
+        gaugeFill.style.stroke = '#dc3545';
+    } else {
+        gaugeFill.setAttribute('class', 'gauge-fill benign');
+        gaugeFill.style.stroke = '#28a745';
+    }
+    
     gaugeValue.textContent = value + '%';
     gaugeLabel.textContent = result === '恶性' ? '恶性风险' : '良性概率';
 }
